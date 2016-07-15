@@ -14,3 +14,6 @@ class Trap(BaseClasses.Object):
 class PauseTrap(Trap):
     img=img4("PauseTrap")
     effect = "Pause"
+class SlowTrap(Trap):
+    img=img4("SlowTrap")
+    effect = "Slow"

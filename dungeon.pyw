@@ -92,7 +92,7 @@ screen.fill((100,100,100))
 timerect=pygame.Rect(881,1024,159,56)
 timesurf=screen.subsurface(timerect)
 pygame.display.flip()
-timeleft=18000
+timeleft=1800
 while True:
     es=pygame.event.get()
     for e in es:
@@ -104,9 +104,17 @@ while True:
     if timeleft:
         timeleft-=1
     else:
-        sys.exit()
+        break
     timesurf.fill((255,255,255))
     Img.bcentrex(tfont,format_time(timeleft),screen,1024)
     pygame.display.update([superrect,timerect])
     clock.tick(60)
     dj.update()
+winscore=max([p.cash for p in players])
+screen.fill((100,100,100))
+supersurf.fill((0,0,0))
+for n,p in enumerate(players):
+    Img.bcentre(tfont,"WIN" if p.cash==winscore else "LOSE",subsurfs[n],col=p.col)
+pygame.display.flip()
+pygame.time.wait(1000)
+

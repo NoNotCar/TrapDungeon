@@ -5,6 +5,7 @@ from random import randint
 import Img
 import Players
 cashfont=Img.fload("cool",32)
+bcfont=Img.fload("cool",64)
 class World(object):
     m=5
     def __init__(self,ps):
@@ -15,29 +16,38 @@ class World(object):
         for s in self.w.itervalues():
             s.update(events)
     def render(self,p,screen):
-        asx=p.x*64+int(round(p.xoff))-192
-        asy=p.y*64+int(round(p.yoff))-256
-        sx=p.x
-        sy=p.y
-        for y in range(sy-self.m,sy+self.m+2):
-            for x in range(sx-self.m,sx+self.m+1):
-                screen.blit(Tiles.tiles[self.get_t(x,y)].get_img(),(x*64-asx,y*64-asy))
-        for y in range(sy-self.m,sy+self.m+2):
-            for x in range(sx-self.m,sx+self.m+1):
-                objs=self.get_os(x,y)
-                for o in objs:
-                    screen.blit(o.get_img(self),(x*64+o.xoff-asx,y*64+o.yoff-asy-o.o3d*4))
-        pygame.draw.rect(screen,p.col,pygame.Rect(0,64,448,452),2)
-        pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
-        for n,i in enumerate(p.inv):
-            screen.blit(i.get_img(),(n*64,0))
-            if n==p.isel:
-                pygame.draw.rect(screen,p.col,pygame.Rect(n*64,60,64,4))
+        if not p.shop:
+            asx=p.x*64+int(round(p.xoff))-192
+            asy=p.y*64+int(round(p.yoff))-256
+            sx=p.x
+            sy=p.y
+            for y in range(sy-self.m,sy+self.m+2):
+                for x in range(sx-self.m,sx+self.m+1):
+                    screen.blit(Tiles.tiles[self.get_t(x,y)].get_img(),(x*64-asx,y*64-asy))
+            for y in range(sy-self.m,sy+self.m+2):
+                for x in range(sx-self.m,sx+self.m+1):
+                    objs=self.get_os(x,y)
+                    for o in objs:
+                        screen.blit(o.get_img(self),(x*64+o.xoff-asx,y*64+o.yoff-asy-o.o3d*4))
+            pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
+            for n,i in enumerate(p.inv):
+                screen.blit(i.get_img(),(n*64,0))
+                if n==p.isel:
+                    pygame.draw.rect(screen,p.col,pygame.Rect(n*64,60,64,4))
+            if p.statuseffects:
+                maxt=max([se[1] for se in p.statuseffects])
+                maxse=[se for se in p.statuseffects if se[1]==maxt][0]
+                pygame.draw.rect(screen,p.col,pygame.Rect(0,507,maxt*448//Players.etimes[maxse[0]],12))
+        else:
+            screen.fill((150,150,150))
+            pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
+            Img.bcentrex(bcfont,"SHOP",screen,-16)
+            for n,i in enumerate(p.shop.items):
+                Img.cxblit(i[0].img,screen,n*64+64,-32)
+                Img.bcentrex(cashfont,str(i[1]),screen,n*64+64,(255,255,0),32)
+            screen.blit(p.simg,(0,p.ssel*64+64))
         Img.bcentrex(cashfont,str(p.cash),screen,468,(255,255,0))
-        if p.statuseffects:
-            maxt=max([se[1] for se in p.statuseffects])
-            maxse=[se for se in p.statuseffects if se[1]==maxt][0]
-            pygame.draw.rect(screen,p.col,pygame.Rect(0,507,maxt*448//Players.etimes[maxse[0]],12))
+        pygame.draw.rect(screen,p.col,pygame.Rect(0,0,448,516),2)
     def get_t(self,x,y):
         sx=x//16
         sy=y//16

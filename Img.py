@@ -143,6 +143,9 @@ def drawTextRect(surface, text, color, rect, font, aa=False, bkg=None):
         text = text[i:]
 
     return text
+def colswap(img,sc,ec):
+    px=pygame.PixelArray(img)
+    px.replace(sc,ec)
 
 blank64=img4("Trans")
 emxs = os.listdir(np(loc+"EMX/"))

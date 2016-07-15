@@ -1,6 +1,8 @@
 from BaseClasses import Object, MultiPart
 from Img import breakimgs, img4, sndget
 import Items
+from Shop import Shop
+import Traps
 breaksnd=sndget("break")
 csh=sndget("cash")
 pickup=sndget("pickup")
@@ -30,6 +32,8 @@ class SellPoint(Object):
             csh.play()
             p.remove_item(item)
             p.cash+=item.value
+        else:
+            p.shop=Shop([(Traps.SlowTrap,50),(Traps.PauseTrap,200)])
 class Diamond(Object):
     img=img4("Diamond")
     def interact(self,world,p):
