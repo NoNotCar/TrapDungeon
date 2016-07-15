@@ -31,7 +31,7 @@ class World(object):
                         screen.blit(o.get_img(self),(x*64+o.xoff-asx,y*64+o.yoff-asy-o.o3d*4))
             pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
             for n,i in enumerate(p.inv):
-                screen.blit(i.get_img(),(n*64,0))
+                screen.blit(i.get_img(p),(n*64,0))
                 if n==p.isel:
                     pygame.draw.rect(screen,p.col,pygame.Rect(n*64,60,64,4))
             if p.statuseffects:
