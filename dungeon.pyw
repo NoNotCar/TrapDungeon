@@ -16,6 +16,7 @@ crossimg=Img.img4("Null")
 cols=((255,0,0),(0,255,0),(0,0,255),(255,255,0),(255,0,255),(0,255,255),(255,128,0),(255,128,255))
 sps=((1,1),(14,1),(1,14))
 pimgs=[Img.create_man(col)[2] for col in cols]
+tutimgs=[Img.img("T"+str(n)) for n in range(1,4)]
 breaking = False
 dj=Img.DJ(["Party"])
 def format_time(time):
@@ -29,14 +30,27 @@ def format_time(time):
 def check_exit(event):
     if event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE:
         sys.exit()
+def tutorial(screen):
+    for t in tutimgs:
+        screen.blit(t,(0,0))
+        pygame.display.flip()
+        done=False
+        while not done:
+            for event in pygame.event.get():
+                check_exit(event)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    done=True
 while not breaking:
     for event in pygame.event.get():
         check_exit(event)
         if event.type == pygame.MOUSEBUTTONDOWN:
             breaking = True
+        elif event.type==pygame.KEYDOWN and event.key==pygame.K_t:
+            tutorial(screen)
     screen.fill((255, 0, 0))
     Img.bcentre(tfont,"DUNGEON",screen)
     Img.bcentre(sfont,"Click to start",screen,50)
+    Img.bcentre(sfont,"Press T for Tutorial",screen,75)
     pygame.display.flip()
     clock.tick(60)
     dj.update()
