@@ -1,5 +1,6 @@
-from Img import img4, sndget
+from Img import img4, sndget, imgstrip4
 pickup=sndget("pickup")
+defuse=sndget("tronic")
 class Item(object):
     img=None
     continuous=False
@@ -15,7 +16,21 @@ class Pickaxe(Item):
         if tars:
             tars[0].pick(world.w.get_sector(tars[0]))
 class Defuser(Item):
-    img=img4("Defuser")
+    imgs=imgstrip4("Defuser")
+    cooldown=0
+    def get_img(self):
+        if self.cooldown:
+            self.cooldown-=1
+        return self.imgs[bool(self.cooldown)]
+    def use(self,tars,world,tx,ty,p):
+        if not self.cooldown:
+            defuse.play()
+            for dx in range(-3,4):
+                for dy in range(-3,4):
+                    for o in world.get_os(p.x+dx,p.y+dy):
+                        if o.name=="Trap":
+                            o.hidden=False
+            self.cooldown=600
 class Diamond(Item):
     img=img4("Diamond")
     value=50

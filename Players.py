@@ -22,7 +22,7 @@ class Player(Object):
         self.imgs=create_man(col)
         self.c=c
         self.col=col
-        self.inv=[Items.Pickaxe(),Items.Trap(Traps.PauseTrap)]
+        self.inv=[Items.Pickaxe(),Items.Defuser(),Items.Trap(Traps.PauseTrap)]
         self.statuseffects=[]
         self.simg=img4("Pointer")
         colswap(self.simg,(255,255,255),col)
