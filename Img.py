@@ -1,6 +1,7 @@
 __author__ = 'NoNotCar'
 import pygame
 import os
+from random import choice
 
 np = os.path.normpath
 loc = os.getcwd() + "/Assets/"
@@ -43,9 +44,12 @@ def imgrot(i):
     return imgs
 
 
-def musplay(fil):
-    pygame.mixer.music.load(np(loc+"Music/" + fil+".ogg"))
-    pygame.mixer.music.play(-1)
+def musplay(fil,loops=-1):
+    if fil[:3]=="EMX":
+        pygame.mixer.music.load(np(loc+"EMX/" + fil[3:]+".ogg"))
+    else:
+        pygame.mixer.music.load(np(loc+"Music/" + fil+".ogg"))
+    pygame.mixer.music.play(loops)
 
 
 def bcentre(font, text, surface, offset=0, col=(0, 0, 0), xoffset=0):
@@ -141,5 +145,16 @@ def drawTextRect(surface, text, color, rect, font, aa=False, bkg=None):
     return text
 
 blank64=img4("Trans")
+emxs = os.listdir(np(loc+"EMX/"))
+emix=[]
+for emx in emxs:
+    if emx[-4:] == ".ogg":
+        emix.append("EMX"+emx[:-4])
+class DJ(object):
+    def __init__(self,stdmix):
+        self.songs=stdmix+emix
+    def update(self):
+        if not pygame.mixer.music.get_busy():
+            musplay(choice(self.songs),1)
 
 #dfont=fload("PressStart2P")

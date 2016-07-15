@@ -3,6 +3,7 @@ from Img import breakimgs, img4, sndget
 import Items
 breaksnd=sndget("break")
 csh=sndget("cash")
+pickup=sndget("pickup")
 class Wall(Object):
     o3d = 4
     imgs=breakimgs("Rock")
@@ -34,3 +35,4 @@ class Diamond(Object):
     def interact(self,world,p):
         if p.add_item(Items.Diamond()):
             world.dest(self)
+            pickup.play()

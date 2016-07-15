@@ -23,7 +23,7 @@ class Keyboard1(Controller):
                 elif e.key==pygame.K_q:
                     lr=-1
                 elif e.key==pygame.K_e:
-                    lr=-1
+                    lr=1
         return bomb,act,lr
     def get_pressed(self):
         keys = pygame.key.get_pressed()

@@ -30,6 +30,9 @@ class Object(object):
             self.xoff=0
             self.yoff=0
             self.moving=False
+            if self.name=="Player":
+                for o in world.get_os(self.x,self.y):
+                    o.walkover(self,world)
     def move(self,dx,dy,world):
         tx=self.x+dx
         ty=self.y+dy
@@ -43,6 +46,8 @@ class Object(object):
     def interact(self,world,p):
         pass
     def pick(self,world):
+        pass
+    def walkover(self,p,world):
         pass
 class MultiPart(Object):
     img=blank64

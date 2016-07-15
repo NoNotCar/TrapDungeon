@@ -3,6 +3,7 @@ import Objects
 import pygame
 from random import randint
 import Img
+import Players
 cashfont=Img.fload("cool",32)
 class World(object):
     m=5
@@ -33,6 +34,10 @@ class World(object):
             if n==p.isel:
                 pygame.draw.rect(screen,p.col,pygame.Rect(n*64,60,64,4))
         Img.bcentrex(cashfont,str(p.cash),screen,468,(255,255,0))
+        if p.statuseffects:
+            maxt=max([se[1] for se in p.statuseffects])
+            maxse=[se for se in p.statuseffects if se[1]==maxt][0]
+            pygame.draw.rect(screen,p.col,pygame.Rect(0,507,maxt*448//Players.etimes[maxse[0]],12))
     def get_t(self,x,y):
         sx=x//16
         sy=y//16
@@ -103,9 +108,12 @@ class Sector(object):
             o.mupdate(self)
     def spawn(self,o):
         x,y=self.d_pos(o.x,o.y)
-        self.o[x][y].append(o)
-        if o.updates:
-            self.uos.append(o)
+        if self.in_sector(o.x,o.y):
+            self.o[x][y].append(o)
+            if o.updates:
+                self.uos.append(o)
+        else:
+            self.w.spawn(o)
     def spawnX(self,o):
         self.o[o.x][o.y].append(o)
         o.x+=self.x*16

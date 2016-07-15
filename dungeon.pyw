@@ -4,11 +4,9 @@ pygame.init()
 pygame.font.init()
 screen = pygame.display.set_mode((1920,1080),pygame.FULLSCREEN|pygame.HWACCEL)
 import Img
-from random import choice
 import Controllers
 import World
 import Players
-Img.musplay("Party")
 pdf = pygame.font.get_default_font()
 tfont=pygame.font.Font(pdf,60)
 sfont=pygame.font.Font(pdf,20)
@@ -19,7 +17,15 @@ cols=((255,0,0),(0,255,0),(0,0,255),(255,255,0),(255,0,255),(0,255,255),(255,128
 sps=((1,1),(14,1),(1,14))
 pimgs=[Img.create_man(col)[2] for col in cols]
 breaking = False
-#Img.musplay("ChOrDs.ogg")
+dj=Img.DJ(["Party"])
+def format_time(time):
+    t=time+60
+    secs=t%3600//60
+    if secs<10:
+        secs="0"+str(secs)
+    else:
+        secs=str(secs)
+    return str(t//3600)+":"+secs
 def check_exit(event):
     if event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE:
         sys.exit()
@@ -33,6 +39,7 @@ while not breaking:
     Img.bcentre(sfont,"Click to start",screen,50)
     pygame.display.flip()
     clock.tick(60)
+    dj.update()
 breaking=False
 controllers=[Controllers.Keyboard1(),Controllers.Keyboard2()]+[Controllers.UniJoyController(n) for n in range(pygame.joystick.get_count())]
 activecons=[]
@@ -74,22 +81,32 @@ while not breaking:
     Img.bcentrex(sfont,"Press <use> to join",screen,n*64+160,(255,255,255))
     pygame.display.flip()
     clock.tick(60)
+    dj.update()
 players=[Players.Player(sps[n][0],sps[n][1], cols[rsps[n]], activecons[n]) for n in range(len(activecons))]
 w=World.World(players)
 superrect=pygame.Rect(0,0,896,1032)
 superrect.centerx=screen.get_rect().centerx
-superrect.centery=screen.get_rect().centery
 supersurf=screen.subsurface(superrect)
 subsurfs=[supersurf.subsurface(pygame.Rect(n%2*448,n//2*516,448,516)) for n in range(4)]
 screen.fill((100,100,100))
+timerect=pygame.Rect(881,1024,159,56)
+timesurf=screen.subsurface(timerect)
 pygame.display.flip()
+timeleft=18000
 while True:
     es=pygame.event.get()
     for e in es:
         check_exit(e)
-    screen.fill((0,0,0))
+    supersurf.fill((0,0,0))
     w.update(es)
     for n,p in enumerate(players):
         w.render(p,subsurfs[n])
-    pygame.display.update(superrect)
+    if timeleft:
+        timeleft-=1
+    else:
+        sys.exit()
+    timesurf.fill((255,255,255))
+    Img.bcentrex(tfont,format_time(timeleft),screen,1024)
+    pygame.display.update([superrect,timerect])
     clock.tick(60)
+    dj.update()
