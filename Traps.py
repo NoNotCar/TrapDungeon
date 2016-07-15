@@ -25,3 +25,6 @@ class PauseTrap(Trap):
 class SlowTrap(Trap):
     img=img4("SlowTrap")
     effect = "Slow"
+class FastTrap(Trap):
+    img=img4("FastTrap")
+    effect = "Fast"

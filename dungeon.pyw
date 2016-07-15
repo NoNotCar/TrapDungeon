@@ -92,7 +92,7 @@ screen.fill((100,100,100))
 timerect=pygame.Rect(881,1024,159,56)
 timesurf=screen.subsurface(timerect)
 pygame.display.flip()
-timeleft=1800
+timeleft=18000
 while True:
     es=pygame.event.get()
     for e in es:

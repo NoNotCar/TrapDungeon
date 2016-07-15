@@ -4,7 +4,7 @@ from BaseClasses import Object
 import Direction as D
 import Items
 import Traps
-etimes={"Pause":1800,"Slow":900}
+etimes={"Pause":1800,"Slow":900,"Fast":900}
 csh=sndget("cash")
 nomoney=sndget("nomoney")
 class Player(Object):
@@ -38,6 +38,8 @@ class Player(Object):
                     pause=True
                 if e=="Slow":
                     self.speed=1
+                if e=="Fast":
+                    self.speed=32
             else:
                 self.statuseffects.remove(se)
         if not (self.moving or pause or self.shop):

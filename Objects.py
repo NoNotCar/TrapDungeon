@@ -33,7 +33,8 @@ class SellPoint(Object):
             p.remove_item(item)
             p.cash+=item.value
         else:
-            p.shop=Shop([(Traps.SlowTrap,50),(Traps.PauseTrap,200)])
+            p.shop=Shop([(Traps.SlowTrap,50),(Traps.FastTrap,50),(Traps.PauseTrap,200)])
+            p.ssel=0
 class Diamond(Object):
     img=img4("Diamond")
     def interact(self,world,p):
