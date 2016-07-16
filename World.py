@@ -225,11 +225,14 @@ class Sector(object):
         rt=False
         for o in gos:
             if o.solid:
-                rt=True
                 if o.explodes:
+                    rt=True
                     self.w.dest(o)
                     self.w.spawn(Objects.Explosion(x, y))
+                elif o.enemy or o in self.w.ps:
+                    pass
                 else:
+                    rt=True
                     o.explode(self)
         if rt:
             return True
