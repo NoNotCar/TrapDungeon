@@ -1,15 +1,21 @@
 from Img import blank64
+import pygame
 class Object(object):
     img=None
     speed=4
     xoff,yoff=(0,0)
+    orect=pygame.Rect(0,0,64,64)
     moving=False
     o3d=0
     solid=True
     name="Object"
     updates=False
+    enemy=False
+    denemy=False
+    explodes=False
     def __init__(self,x,y):
         self.place(x,y)
+        self.rerect()
     def place(self,x,y):
         self.x=x
         self.y=y
@@ -33,10 +39,11 @@ class Object(object):
             if self.name=="Player":
                 for o in world.get_os(self.x,self.y):
                     o.walkover(self,world)
+        self.rerect()
     def move(self,dx,dy,world):
         tx=self.x+dx
         ty=self.y+dy
-        if world.is_clear(tx,ty):
+        if world.is_clear(tx,ty,self):
             world.move(self,tx,ty)
             self.moving=True
             self.xoff= -dx*64
@@ -48,6 +55,10 @@ class Object(object):
     def pick(self,world):
         pass
     def walkover(self,p,world):
+        pass
+    def rerect(self):
+        self.rect=self.orect.move(self.x*64+self.xoff,self.y*64+self.yoff)
+    def explode(self,world):
         pass
 class MultiPart(Object):
     img=blank64

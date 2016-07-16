@@ -113,6 +113,8 @@ while True:
         check_exit(e)
     supersurf.fill((0,0,0))
     w.update(es)
+    if all([p.dead for p in players]):
+        break
     for n,p in enumerate(players):
         w.render(p,subsurfs[n])
     if timeleft:

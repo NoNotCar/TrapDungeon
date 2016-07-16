@@ -8,7 +8,7 @@ etimes={"Pause":1800,"Slow":900,"Fast":900}
 csh=sndget("cash")
 nomoney=sndget("nomoney")
 class Player(Object):
-    #orect = pygame.Rect(10, 2, 12, 28)
+    orect = pygame.Rect(20, 4, 24, 56)
     d=2
     updates = True
     name = "Player"
@@ -17,6 +17,7 @@ class Player(Object):
     shop=None
     ssel=0
     scooldown=0
+    dead=False
     def __init__(self, x, y, col, c):
         self.place(x, y)
         self.imgs=create_man(col)
@@ -81,6 +82,11 @@ class Player(Object):
     def get_img(self,world):
         return self.imgs[self.d]
     def add_item(self,item):
+        if item.stack:
+            for i in self.inv:
+                if i.name==item.name and i.stack<10:
+                    i.stack+=1
+                    return True
         if len(self.inv)<7:
             self.inv.append(item)
             return True

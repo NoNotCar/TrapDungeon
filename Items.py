@@ -1,14 +1,35 @@
 from Img import img4, sndget, imgstrip4
 pickup=sndget("pickup")
 defuse=sndget("tronic")
+stackplacers=["Bomb"]
 class Item(object):
     img=None
     continuous=False
     value=0
+    stack=False
+    name="Item"
     def get_img(self,p):
         return self.img
     def use(self,tars,world,tx,ty,p):
         pass
+class StackItem(Item):
+    stack=1
+    def use(self,tars,world,tx,ty,p):
+        if self.stack==1:
+            p.remove_item(self)
+        else:
+            self.stack-=1
+        self.stuse(tars,world,tx,ty,p)
+    def stuse(self,tars,world,tx,ty,p):
+        pass
+class StackPlacer(StackItem):
+    def __init__(self,oc):
+        self.img=oc.img
+        self.name=oc.name
+        self.c=oc
+    def stuse(self,tars,world,tx,ty,p):
+        if not tars:
+            world.spawn(self.c(tx,ty))
 class Pickaxe(Item):
     img=img4("BasicPick")
     continuous = True
@@ -35,10 +56,11 @@ class Diamond(Item):
     img=img4("Diamond")
     value=50
 def wrap(item):
-    assert item.name in ["Trap", "Compass"], "THAT ISN'T AVAILABLE SORRY"
     if item.name=="Trap":
         return Trap(item)
-    return Compass()
+    elif item.name in stackplacers:
+        return StackPlacer(item)
+    return item()
 class Trap(Item):
     def __init__(self,trapc):
         self.t=trapc
