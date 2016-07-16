@@ -126,7 +126,7 @@ class Sector(object):
         for x in range(16):
             for y in range(16):
                 if not randint(0,100):
-                    self.spawnX(Objects.Diamond(x,y))
+                    self.spawnX((Objects.Diamond if self.d<8 else Objects.RedDiamond)(x,y))
                 elif not randint(0,100) and self.d>=4:
                     self.spawnX(Enemies.Ghost(x,y))
                 elif randint(-2,10)<self.d:

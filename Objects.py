@@ -32,12 +32,18 @@ class SellPoint(Object):
     def interact(self,world,p):
         p.shop=Shop([(Traps.SlowTrap,20),(Traps.FastTrap,20),(Traps.ReverseTrap,50),(Traps.PauseTrap,100),(Items.Compass,50),(Bomb,20)])
         p.ssel=0
-class Diamond(Object):
-    img=img4("Diamond")
+class ValuableObject(Object):
+    value=100
     def interact(self,world,p):
-        if p.add_item(Items.Diamond()):
+        if p.add_item(Items.ValuableItem(self)):
             world.dest(self)
             pickup.play()
+class Diamond(ValuableObject):
+    img=img4("Diamond")
+    value=50
+class RedDiamond(ValuableObject):
+    img = img4("RedDiamond")
+    value = 250
 class Bomb(Object):
     timer = 120
     img = img4("Bomb")

@@ -21,13 +21,13 @@ class Item(object):
 class StackItem(Item):
     stack=1
     def use(self,tars,world,tx,ty,p):
-        if self.stack==1:
-            p.remove_item(self)
-        else:
-            self.stack-=1
-        self.stuse(tars,world,tx,ty,p)
+        if self.stuse(tars,world,tx,ty,p):
+            if self.stack==1:
+                p.remove_item(self)
+            else:
+                self.stack-=1
     def stuse(self,tars,world,tx,ty,p):
-        pass
+        return True
 class StackPlacer(StackItem):
     def __init__(self,oc):
         self.img=oc.img
@@ -36,6 +36,7 @@ class StackPlacer(StackItem):
     def stuse(self,tars,world,tx,ty,p):
         if not tars:
             world.spawn(self.c(tx,ty))
+            return True
 class Pickaxe(Item):
     img=img4("BasicPick")
     continuous = True
@@ -58,9 +59,10 @@ class Defuser(Item):
                         if o.name=="Trap":
                             o.hidden=False
             self.cooldown=600
-class Diamond(Item):
-    img=img4("Diamond")
-    value=50
+class ValuableItem(Item):
+    def __init__(self,oc):
+        self.value=oc.value
+        self.img=oc.img
 def wrap(item):
     if item.name=="Trap":
         return Trap(item)

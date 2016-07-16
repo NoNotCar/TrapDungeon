@@ -47,13 +47,13 @@ class Player(Object):
             else:
                 self.statuseffects.remove(se)
         if not (self.moving or pause or self.shop):
+            bpressc = self.c.get_pressed()
             for d in self.c.get_dirs():
                 self.d=D.index(d)
                 if reverse:
                     d=D.anti(d)
-                if self.move(d[0], d[1], world):
+                if not bpressc[1] and self.move(d[0], d[1], world):
                     break
-            bpressc = self.c.get_pressed()
             if self.inv[self.isel].continuous:
                 if bpressc[0]:
                     dx,dy=D.offset(self.d,self)
