@@ -90,7 +90,11 @@ class World(object):
             self.new_sector(sx,sy)
             return self.get_t(x,y)
     def new_sector(self,sx,sy):
-        self.w[(sx,sy)]=Sector(self,sx,sy)
+        d=abs(sx)+abs(sy)
+        if d<5 or randint(0,10):
+            self.w[(sx,sy)]=Sector(self,sx,sy)
+        else:
+            self.w[(sx,sy)]=Glade(self,sx,sy)
     def is_clear(self,x,y,e):
         sx=x//16
         sy=y//16
@@ -120,8 +124,8 @@ class Sector(object):
         self.size=(16,16)
         self.oconvert()
         self.d=abs(x)+abs(y)
-        self.build()
         self.w=w
+        self.build()
     def build(self):
         for x in range(16):
             for y in range(16):
@@ -249,3 +253,17 @@ class HomeSector(Sector):
             for y in range(16):
                 if x in [0,15] or y in [0,15]:
                     self.spawnX(Objects.Wall(x,y))
+class Glade(Sector):
+    def build(self):
+        self.r=randint(4,8)
+        for x in range(16):
+            for y in range(16):
+                dx=abs(x-5.5)
+                dy=abs(y-5.5)
+                if (dx**2+dy**2)**0.5<self.r:
+                    self.t[x][y]=1
+                    if not(x in [7,8] and y in [7,8]) and randint(0,1):
+                        self.spawnX(Objects.Tree(x,y))
+                elif randint(-2,10)<self.d:
+                    self.spawnX(Objects.Wall(x,y))
+        self.spawn(Objects.GSellPoint(7+self.x*16,7+self.y*16,self))

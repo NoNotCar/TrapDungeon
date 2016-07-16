@@ -7,4 +7,4 @@ class Tile(object):
 class Floor(Tile):
     def __init__(self,imgname):
         self.img=img4(imgname)
-tiles=[Floor("Floor")]
+tiles=[Floor("Floor"),Floor("Grass")]

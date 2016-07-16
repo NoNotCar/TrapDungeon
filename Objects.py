@@ -19,31 +19,10 @@ class Wall(Object):
         if self.blevel==71:
             world.dest(self)
             breaksnd.play()
-class SellPoint(Object):
-    o3d = 4
-    img=img4("CashPoint")
-    name = "Shop"
-    def __init__(self,x,y,world):
-        self.place(x,y)
-        for dx,dy in ((0,1),(1,0),(1,1)):
-            tx=x+dx
-            ty=y+dy
-            world.spawn(MultiPart(tx,ty,self))
-    def interact(self,world,p):
-        p.shop=Shop([(Traps.SlowTrap,20),(Traps.FastTrap,20),(Traps.ReverseTrap,50),(Traps.PauseTrap,100),(Items.Compass,50),(Bomb,20)])
-        p.ssel=0
-class ValuableObject(Object):
-    value=100
-    def interact(self,world,p):
-        if p.add_item(Items.ValuableItem(self)):
-            world.dest(self)
-            pickup.play()
-class Diamond(ValuableObject):
-    img=img4("Diamond")
-    value=50
-class RedDiamond(ValuableObject):
-    img = img4("RedDiamond")
-    value = 250
+class Tree(Object):
+    o3d=7
+    img=img4("Tree")
+    explodes = True
 class Bomb(Object):
     timer = 120
     img = img4("Bomb")
@@ -78,3 +57,32 @@ class Explosion(Object):
         self.life -= 1
         if self.life == 0:
             world.dest(self)
+class SellPoint(Object):
+    o3d = 4
+    img=img4("CashPoint")
+    name = "Shop"
+    shop=Shop([(Traps.SlowTrap,20),(Traps.FastTrap,20),(Traps.ReverseTrap,50),(Traps.PauseTrap,100),(Items.Compass,50),(Bomb,20)])
+    def __init__(self,x,y,world):
+        self.place(x,y)
+        for dx,dy in ((0,1),(1,0),(1,1)):
+            tx=x+dx
+            ty=y+dy
+            world.spawn(MultiPart(tx,ty,self))
+    def interact(self,world,p):
+        p.shop=self.shop
+        p.ssel=0
+class GSellPoint(SellPoint):
+    img = img4("BCashPoint")
+    shop = Shop([(Bomb,10)])
+class ValuableObject(Object):
+    value=100
+    def interact(self,world,p):
+        if p.add_item(Items.ValuableItem(self)):
+            world.dest(self)
+            pickup.play()
+class Diamond(ValuableObject):
+    img=img4("Diamond")
+    value=50
+class RedDiamond(ValuableObject):
+    img = img4("RedDiamond")
+    value = 250
