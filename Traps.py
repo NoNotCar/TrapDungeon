@@ -28,3 +28,6 @@ class SlowTrap(Trap):
 class FastTrap(Trap):
     img=img4("FastTrap")
     effect = "Fast"
+class ReverseTrap(Trap):
+    img=img4("ReverseTrap")
+    effect = "Reverse"

@@ -4,7 +4,7 @@ from BaseClasses import Object
 import Direction as D
 import Items
 import Traps
-etimes={"Pause":1800,"Slow":900,"Fast":900}
+etimes={"Pause":1800,"Slow":900,"Fast":900,"Reverse":1800}
 csh=sndget("cash")
 nomoney=sndget("nomoney")
 class Player(Object):
@@ -23,7 +23,7 @@ class Player(Object):
         self.imgs=create_man(col)
         self.c=c
         self.col=col
-        self.inv=[Items.Pickaxe(),Items.Defuser(),Items.Trap(Traps.PauseTrap)]
+        self.inv=[Items.Pickaxe(),Items.Defuser()]
         self.statuseffects=[]
         self.simg=img4("Pointer")
         colswap(self.simg,(255,255,255),col)
@@ -31,6 +31,7 @@ class Player(Object):
         bpress = self.c.get_buttons(events)
         pause=False
         self.speed=4
+        reverse=False
         for se in self.statuseffects[:]:
             if se[1]:
                 se[1]-=1
@@ -41,11 +42,15 @@ class Player(Object):
                     self.speed=1
                 if e=="Fast":
                     self.speed=32
+                if e=="Reverse":
+                    reverse=True
             else:
                 self.statuseffects.remove(se)
         if not (self.moving or pause or self.shop):
             for d in self.c.get_dirs():
                 self.d=D.index(d)
+                if reverse:
+                    d=D.anti(d)
                 if self.move(d[0], d[1], world):
                     break
             bpressc = self.c.get_pressed()

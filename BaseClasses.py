@@ -66,5 +66,6 @@ class MultiPart(Object):
         self.p=p
         self.solid=p.solid
         self.place(x,y)
+        self.name=p.name
     def interact(self,world,p):
         self.p.interact(world,p)

@@ -6,7 +6,6 @@ import Traps
 from random import randint
 from pygame import Rect
 breaksnd=sndget("break")
-csh=sndget("cash")
 pickup=sndget("pickup")
 class Wall(Object):
     o3d = 4
@@ -23,6 +22,7 @@ class Wall(Object):
 class SellPoint(Object):
     o3d = 4
     img=img4("CashPoint")
+    name = "Shop"
     def __init__(self,x,y,world):
         self.place(x,y)
         for dx,dy in ((0,1),(1,0),(1,1)):
@@ -30,14 +30,8 @@ class SellPoint(Object):
             ty=y+dy
             world.spawn(MultiPart(tx,ty,self))
     def interact(self,world,p):
-        item=p.inv[p.isel]
-        if item.value:
-            csh.play()
-            p.remove_item(item)
-            p.cash+=item.value
-        else:
-            p.shop=Shop([(Traps.SlowTrap,20),(Traps.FastTrap,20),(Traps.PauseTrap,100),(Items.Compass,50),(Bomb,20)])
-            p.ssel=0
+        p.shop=Shop([(Traps.SlowTrap,20),(Traps.FastTrap,20),(Traps.ReverseTrap,50),(Traps.PauseTrap,100),(Items.Compass,50),(Bomb,20)])
+        p.ssel=0
 class Diamond(Object):
     img=img4("Diamond")
     def interact(self,world,p):

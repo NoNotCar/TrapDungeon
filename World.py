@@ -245,3 +245,7 @@ class HomeSector(Sector):
             self.spawn(p)
     def build(self):
         self.spawnX(Objects.SellPoint(7,7,self))
+        for x in range(16):
+            for y in range(16):
+                if x in [0,15] or y in [0,15]:
+                    self.spawnX(Objects.Wall(x,y))
