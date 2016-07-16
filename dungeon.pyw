@@ -14,7 +14,7 @@ clock = pygame.time.Clock()
 tickimg=Img.img4("Tick")
 crossimg=Img.img4("Null")
 cols=((255,0,0),(0,255,0),(0,0,255),(255,255,0),(255,0,255),(0,255,255),(255,128,0),(255,128,255))
-sps=((1,1),(14,1),(1,14))
+sps=((1,1),(14,1),(1,14),(14,14),(4,4),(11,4),(4,11),(11,11))
 pimgs=[Img.create_man(col)[2] for col in cols]
 tutimgs=[Img.img("T"+str(n)) for n in range(1,4)]
 breaking = False
@@ -98,10 +98,11 @@ while not breaking:
     dj.update()
 players=[Players.Player(sps[n][0],sps[n][1], cols[rsps[n]], activecons[n]) for n in range(len(activecons))]
 w=World.World(players)
-superrect=pygame.Rect(0,0,896,1032)
+ss=(len(players)+1)//2
+superrect=pygame.Rect(0,0,448*ss,1032)
 superrect.centerx=screen.get_rect().centerx
 supersurf=screen.subsurface(superrect)
-subsurfs=[supersurf.subsurface(pygame.Rect(n%2*448,n//2*516,448,516)) for n in range(4)]
+subsurfs=[supersurf.subsurface(pygame.Rect(n%ss*448,n//ss*516,448,516)) for n in range(ss*2)]
 screen.fill((100,100,100))
 timerect=pygame.Rect(881,1024,159,56)
 timesurf=screen.subsurface(timerect)
