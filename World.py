@@ -37,7 +37,7 @@ class World(object):
                 p.die()
                 self.get_sector(p).dest(p)
             elif p.dead:
-                p.dead-=10 if all([p.dead for p in self.ps]) else 1
+                p.dead-=10 if all([op.dead for op in self.ps]) else 1
                 if p.dead<=0:
                     if not self.w[(0,0)].respawn(p):
                         p.dead=60
