@@ -100,3 +100,7 @@ class Player(Object):
         self.isel%=len(self.inv)
     def add_effect(self,effect):
         self.statuseffects.append([effect,etimes[effect]])
+    def die(self):
+        self.inv=[Items.Pickaxe(),Items.Defuser()]
+        self.isel%=len(self.inv)
+        self.dead=1800

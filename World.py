@@ -5,6 +5,9 @@ from random import randint, choice
 import Img
 import Players
 import Enemies
+from NoiseGen import perlin
+bnoise=perlin.SimplexNoise(256)
+tnoise=perlin.SimplexNoise(256)
 cashfont=Img.fload("cool",32)
 bcfont=Img.fload("cool",64)
 exp=Img.sndget("bomb")
@@ -30,8 +33,13 @@ class World(object):
                     drects.append(e.rect)
         for p in self.ps:
             if not p.dead and p.rect.collidelist(erects)!=-1:
-                p.dead=True
+                p.die()
                 self.get_sector(p).dest(p)
+            elif p.dead:
+                p.dead-=10 if all([p.dead for p in self.ps]) else 1
+                if p.dead<=0:
+                    if not self.w[(0,0)].respawn(p):
+                        p.dead=60
         if drects:
             for e in enemies:
                 if not e.denemy and e.rect.collidelist(drects)!=-1:
@@ -71,6 +79,7 @@ class World(object):
             screen.blit(p.simg,(0,p.ssel*64+64))
         else:
             Img.bcentre(bcfont,"DEAD",screen,col=(255,255,255))
+            Img.bcentre(cashfont,"RESPAWN: "+str(p.dead//60),screen,64,(255,255,255))
         Img.bcentrex(cashfont,str(p.cash),screen,468,(255,255,0))
         pygame.draw.rect(screen,p.col,pygame.Rect(0,0,448,516),2)
     def get_t(self,x,y):
@@ -129,11 +138,13 @@ class Sector(object):
     def build(self):
         for x in range(16):
             for y in range(16):
+                noise=tnoise.noise2(self.x+x/16.0, self.y+y/16.0)+1
+                threshold=self.d*0.1+1.0 if self.d<5 else 1.5
                 if not randint(0,100):
                     self.spawnX((Objects.Diamond if self.d<8 else Objects.RedDiamond)(x,y))
                 elif not randint(0,100) and self.d>=4:
                     self.spawnX(Enemies.Ghost(x,y))
-                elif randint(-2,10)<self.d:
+                elif noise<threshold:
                     self.spawnX(Objects.Wall(x,y))
     def oconvert(self):
         for x in range(self.size[0]):
@@ -249,21 +260,30 @@ class HomeSector(Sector):
             self.spawn(p)
     def build(self):
         self.spawnX(Objects.SellPoint(7,7,self))
-        for x in range(16):
-            for y in range(16):
-                if x in [0,15] or y in [0,15]:
-                    self.spawnX(Objects.Wall(x,y))
+    def respawn(self,p):
+        attempts=0
+        while attempts<100:
+            x=randint(0,15)
+            y=randint(0,15)
+            if not self.get_os(x,y):
+                p.place(x,y)
+                self.spawn(p)
+                return True
+            attempts+=1
+        return False
 class Glade(Sector):
     def build(self):
         self.r=randint(4,8)
         for x in range(16):
             for y in range(16):
+                noise=tnoise.noise2((self.x+x/16.0)*2, (self.y+y/16.0)*2)+1
+                threshold=self.d*0.1+1.0 if self.d<5 else 1.5
                 dx=abs(x-5.5)
                 dy=abs(y-5.5)
                 if (dx**2+dy**2)**0.5<self.r:
                     self.t[x][y]=1
                     if not(x in [7,8] and y in [7,8]) and randint(0,1):
                         self.spawnX(Objects.Tree(x,y))
-                elif randint(-2,10)<self.d:
+                elif noise<threshold:
                     self.spawnX(Objects.Wall(x,y))
         self.spawn(Objects.GSellPoint(7+self.x*16,7+self.y*16,self))
