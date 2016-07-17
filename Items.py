@@ -2,7 +2,7 @@ from Img import img4, sndget, imgstrip4
 pickup=sndget("pickup")
 defuse=sndget("tronic")
 csh=sndget("cash")
-stackplacers=["Bomb"]
+stackplacers=["Bomb","Dynamite"]
 class Item(object):
     img=None
     continuous=False
@@ -16,7 +16,7 @@ class Item(object):
             for t in tars:
                 if t.name=="Shop":
                     p.remove_item(self)
-                    p.cash+=self.value
+                    p.cash+=self.value*self.stack if self.stack else self.value
                     csh.play()
 class StackItem(Item):
     stack=1
@@ -63,6 +63,10 @@ class ValuableItem(Item):
     def __init__(self,oc):
         self.value=oc.value
         self.img=oc.img
+        self.name=oc.name
+
+class StackValuables(ValuableItem):
+    stack = 1
 def wrap(item):
     if item.name=="Trap":
         return Trap(item)
@@ -77,8 +81,8 @@ class Trap(Item):
     def use(self,tars,world,tx,ty,p):
         if not tars:
             world.spawn(self.t(tx,ty))
-        p.remove_item(self)
-        pickup.play()
+            p.remove_item(self)
+            pickup.play()
 class Compass(Item):
     imgs=imgstrip4("Compass")
     name="Compass"
@@ -98,3 +102,10 @@ class Compass(Item):
             else:
                 n=2
         return self.imgs[n]
+class FFToken(StackItem):
+    img=img4("FFToken")
+    name = "FFToken"
+    def stuse(self,tars,world,tx,ty,p):
+        p.add_effect("Fast")
+        defuse.play()
+        return True

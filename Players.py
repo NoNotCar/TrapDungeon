@@ -3,7 +3,6 @@ from Img import create_man, img4, colswap, sndget
 from BaseClasses import Object
 import Direction as D
 import Items
-import Traps
 etimes={"Pause":1800,"Slow":900,"Fast":900,"Reverse":1800}
 csh=sndget("cash")
 nomoney=sndget("nomoney")
@@ -41,7 +40,7 @@ class Player(Object):
                 if e=="Slow":
                     self.speed=1
                 if e=="Fast":
-                    self.speed=32
+                    self.speed=16
                 if e=="Reverse":
                     reverse=True
             else:

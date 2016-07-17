@@ -6,8 +6,8 @@ from pygame import joystick
 
 joystick.init()
 buconv = {"XBOX": {"A": 0, "B": 1, "X": 2, "Y": 3, "L1": 4, "R1": 5, "SELECT": 6, "START": 7},
-          "PS2": {"A": 2, "B": 3, "L1": 6},
-          "CHEAP": {"A": 2, "B": 3, "L1": 4}}
+          "PS2": {"A": 2, "B": 1, "L1": 6,"R1":7},
+          "CHEAP": {"A": 2, "B": 3, "L1": 4,"R1":6}}
 
 
 class Unijoy:

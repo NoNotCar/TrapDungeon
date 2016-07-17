@@ -44,6 +44,7 @@ class World(object):
             for e in enemies:
                 if not e.denemy and e.rect.collidelist(drects)!=-1:
                     self.get_sector(e).dest(e)
+                    e.die(self)
     def render(self,p,screen):
         if not (p.shop or p.dead):
             asx=p.x*64+int(round(p.xoff))-192
@@ -142,7 +143,7 @@ class Sector(object):
                 threshold=self.d*0.1+1.0 if self.d<5 else 1.5
                 if not randint(0,100):
                     self.spawnX((Objects.Diamond if self.d<8 else Objects.RedDiamond)(x,y))
-                elif not randint(0,100) and self.d>=4:
+                elif not randint(0,75) and self.d>=3:
                     self.spawnX(Enemies.Ghost(x,y))
                 elif noise<threshold:
                     self.spawnX(Objects.Wall(x,y))
@@ -225,16 +226,21 @@ class Sector(object):
             elif dist==maxdist:
                 nearps.append(p)
         return choice(nearps), maxdist
-    def create_exp(self, fx, fy, r):
+    def create_exp(self, fx, fy, r, exps):
         exp.play()
-        self.explode(fx, fy)
-        for dx, dy in [[0, 1], [1, 0], [0, -1], [-1, 0]]:
-            x, y = fx + dx, fy + dy
-            for n in range(r):
-                if self.explode(x, y):
-                    break
-                x += dx
-                y += dy
+        if exps=="Cross":
+            self.explode(fx, fy)
+            for dx, dy in [[0, 1], [1, 0], [0, -1], [-1, 0]]:
+                x, y = fx + dx, fy + dy
+                for n in range(r):
+                    if self.explode(x, y):
+                        break
+                    x += dx
+                    y += dy
+        elif exps=="Square":
+            for x in range(fx-r,fx+r+1):
+                for y in range(fy-r,fy+r+1):
+                    self.explode(x,y)
     def explode(self, x, y):
         gos=self.get_os(x,y)
         rt=False
