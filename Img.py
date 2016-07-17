@@ -155,7 +155,7 @@ for emx in emxs:
         emix.append("EMX"+emx[:-4])
 class DJ(object):
     def __init__(self,stdmix):
-        self.songs=stdmix+emix
+        self.songs=emix if emix else stdmix
     def update(self):
         if not pygame.mixer.music.get_busy():
             musplay(choice(self.songs),1)
