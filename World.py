@@ -160,7 +160,8 @@ class Sector(object):
     def update(self,events):
         for o in self.uos:
             o.update(self,events)
-            o.mupdate(self)
+            if o.moving:
+                o.mupdate(self)
     def spawn(self,o):
         x,y=self.d_pos(o.x,o.y)
         if self.in_sector(o.x,o.y):

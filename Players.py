@@ -25,6 +25,7 @@ class Player(Object):
         self.inv=[Items.Pickaxe(),Items.Defuser()]
         self.statuseffects=[]
         self.simg=img4("Pointer")
+        self.rerect()
         colswap(self.simg,(255,255,255),col)
     def update(self, world, events):
         bpress = self.c.get_buttons(events)
