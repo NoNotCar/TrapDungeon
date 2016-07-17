@@ -1,4 +1,5 @@
 from Img import img4, sndget, imgstrip4
+import Direction as D
 pickup=sndget("pickup")
 defuse=sndget("tronic")
 csh=sndget("cash")
@@ -39,10 +40,15 @@ class StackPlacer(StackItem):
             return True
 class Pickaxe(Item):
     img=img4("BasicPick")
+    gimg=img4("GoldenPick")
+    name="Pickaxe"
     continuous = True
+    golden=False
     def use(self,tars,world,tx,ty,p):
         if tars:
-            tars[0].pick(world.w.get_sector(tars[0]))
+            tars[0].pick(world.w.get_sector(tars[0]),self.golden+1)
+    def get_img(self,p):
+        return self.gimg if self.golden else self.img
 class Defuser(Item):
     imgs=imgstrip4("Defuser")
     cooldown=0
@@ -109,3 +115,19 @@ class FFToken(StackItem):
         p.add_effect("Fast")
         defuse.play()
         return True
+class GigaDrill(Item):
+    img=img4("GigaDrill")
+    continuous = True
+    def use(self,tars,world,tx,ty,p):
+        dx,dy=D.get_dir(p.d)
+        for n in range(1,4):
+            gos=world.get_os(p.x+dx*n,p.y+dy*n)
+            if not gos:
+                break
+            stop=False
+            for o in gos:
+                if not o.pick(world.w.get_sector(o)):
+                    stop=True
+                    break
+            if stop:
+                break

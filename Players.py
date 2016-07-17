@@ -86,14 +86,18 @@ class Player(Object):
     def get_img(self,world):
         return self.imgs[self.d]
     def add_item(self,item):
-        if item.stack:
-            for i in self.inv:
-                if i.name==item.name and i.stack<10:
-                    i.stack+=1
-                    return True
-        if len(self.inv)<7:
-            self.inv.append(item)
+        if item.name=="Upgrade":
+            item.upgrade(self)
             return True
+        else:
+            if item.stack:
+                for i in self.inv:
+                    if i.name==item.name and i.stack<10:
+                        i.stack+=1
+                        return True
+            if len(self.inv)<7:
+                self.inv.append(item)
+                return True
     def remove_item(self,item):
         self.inv.remove(item)
         self.isel%=len(self.inv)

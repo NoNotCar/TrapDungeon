@@ -141,7 +141,9 @@ class Sector(object):
             for y in range(16):
                 noise=tnoise.noise2(self.x+x/16.0, self.y+y/16.0)+1
                 threshold=self.d*0.1+1.0 if self.d<5 else 1.5
-                if not randint(0,100):
+                if not randint(0,400):
+                    self.spawnX(Objects.UpgradePoint(x,y))
+                elif not randint(0,100):
                     self.spawnX((Objects.Diamond if self.d<8 else Objects.RedDiamond)(x,y))
                 elif not randint(0,75) and self.d>=3:
                     self.spawnX(Enemies.Ghost(x,y))

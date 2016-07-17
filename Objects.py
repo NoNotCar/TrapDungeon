@@ -1,7 +1,7 @@
 from BaseClasses import Object, MultiPart
 from Img import breakimgs, img4, sndget, imgstrip4
 import Items
-from Shop import Shop
+from Shop import Shop, GPUpgrade
 import Traps
 from random import randint
 from pygame import Rect
@@ -14,11 +14,12 @@ class Wall(Object):
     explodes = True
     def get_img(self,world):
         return self.imgs[((self.blevel-7)//8)+1]
-    def pick(self,world):
-        self.blevel+=1
-        if self.blevel==71:
+    def pick(self,world,strength=1):
+        self.blevel+=strength
+        if self.blevel>=71:
             world.dest(self)
             breaksnd.play()
+        return True
 class Tree(Object):
     o3d=7
     img=img4("Tree")
@@ -72,7 +73,7 @@ class SellPoint(Object):
     o3d = 4
     img=img4("CashPoint")
     name = "Shop"
-    shop=Shop([(Traps.SlowTrap,20),(Traps.ReverseTrap,50),(Traps.PauseTrap,100),(Items.Compass,50),(Bomb,20),(Items.FFToken,20)])
+    shop=Shop([(Traps.SlowTrap,20),(Traps.ReverseTrap,40),(Traps.PauseTrap,80),(Items.Compass,50),(Bomb,20),(Items.FFToken,20)])
     def __init__(self,x,y,world):
         self.place(x,y)
         for dx,dy in ((0,1),(1,0),(1,1)):
@@ -84,7 +85,14 @@ class SellPoint(Object):
         p.ssel=0
 class GSellPoint(SellPoint):
     img = img4("BCashPoint")
-    shop = Shop([(Bomb,10),(Dynamite,20)])
+    shop = Shop([(Bomb,10),(Dynamite,20),(Items.GigaDrill,250)])
+class UpgradePoint(Object):
+    img=img4("UpgradeStation")
+    o3d = 4
+    shop=Shop([(GPUpgrade,100)])
+    def interact(self,world,p):
+        p.shop=self.shop
+        p.ssel=0
 class ValuableObject(Object):
     value=100
     stacks=False

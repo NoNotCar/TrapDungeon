@@ -52,7 +52,7 @@ class Object(object):
         return False
     def interact(self,world,p):
         pass
-    def pick(self,world):
+    def pick(self,world,strength=1):
         pass
     def walkover(self,p,world):
         pass
