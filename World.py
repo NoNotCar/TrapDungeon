@@ -10,6 +10,7 @@ bnoise=perlin.SimplexNoise(256)
 tnoise=perlin.SimplexNoise(256)
 cashfont=Img.fload("cool",32)
 bcfont=Img.fload("cool",64)
+threshold=1.3
 exp=Img.sndget("bomb")
 numerals=Img.imgstrip4f("Numbers",5)+[Img.img4("Ten")]
 class World(object):
@@ -140,15 +141,17 @@ class Sector(object):
         for x in range(16):
             for y in range(16):
                 noise=tnoise.noise2(self.x+x/16.0, self.y+y/16.0)+1
-                threshold=self.d*0.1+1.0 if self.d<5 else 1.5
                 if not randint(0,400):
                     self.spawnX(Objects.UpgradePoint(x,y))
                 elif not randint(0,100):
                     self.spawnX((Objects.Diamond if self.d<8 else Objects.RedDiamond)(x,y))
                 elif not randint(0,75) and self.d>=3:
-                    self.spawnX(Enemies.Ghost(x,y))
+                    self.spawnX((Enemies.Ghost if randint(0,5) else Enemies.Ghost)(x,y))
                 elif noise<threshold:
-                    self.spawnX(Objects.Wall(x,y))
+                    if randint(0,50):
+                        self.spawnX(Objects.Wall(x,y))
+                    else:
+                        self.spawnX(Enemies.AngryWall(x,y))
     def oconvert(self):
         for x in range(self.size[0]):
             for y in range(self.size[1]):
@@ -285,7 +288,6 @@ class Glade(Sector):
         for x in range(16):
             for y in range(16):
                 noise=tnoise.noise2((self.x+x/16.0)*2, (self.y+y/16.0)*2)+1
-                threshold=self.d*0.1+1.0 if self.d<5 else 1.5
                 dx=abs(x-5.5)
                 dy=abs(y-5.5)
                 if (dx**2+dy**2)**0.5<self.r:

@@ -15,7 +15,7 @@ class Trap(BaseClasses.Object):
         if self.hidden:
             return blank64
         return self.img
-    def pick(self,world):
+    def pick(self,world,strength):
         if not self.hidden:
             world.dest(self)
             breaksnd.play()
