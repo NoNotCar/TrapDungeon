@@ -19,6 +19,7 @@ class Object(object):
     def place(self,x,y):
         self.x=x
         self.y=y
+        self.rerect()
     def update(self,world,events):
         pass
     def get_img(self,world):
@@ -32,7 +33,7 @@ class Object(object):
             self.yoff-=self.speed
         elif self.yoff<0:
             self.yoff+=self.speed
-        if abs(self.xoff)<self.speed and abs(self.yoff)<self.speed and self.moving:
+        if abs(self.xoff)<self.speed and abs(self.yoff)<self.speed:
             self.xoff=0
             self.yoff=0
             self.moving=False

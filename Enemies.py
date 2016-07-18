@@ -1,10 +1,13 @@
 from BaseClasses import Object
-from Img import imgstrip4, imgstrip4f
+from Img import imgstrip4, imgstrip4f, img4
 import pygame
+from random import randint
+import Direction as D
 import Objects
 class Enemy(Object):
     enemy = True
     loot=None
+    updates = True
     def die(self,aworld):
         if self.loot is not None:
             aworld.spawn(self.loot(self.x,self.y))
@@ -99,3 +102,23 @@ class AngryWall(Objects.Wall):
         return self.imgs[(self.anitick+19)//20]
     def pick(self,world,strength=1):
         pass
+class Thump(Enemy):
+    orect = pygame.Rect(8,8,48,48)
+    img=img4("Thump")
+    cooldown=0
+    def __init__(self,x,y):
+        self.place(x,y)
+        self.hoz=randint(0,1)
+        self.d=randint(0,2)+(1 if self.hoz else 0)
+    def update(self,world,events):
+        if not self.moving:
+            if not self.cooldown:
+                if world.get_nearest_player(self.x,self.y)[1]<10:
+                    dire=D.get_dir(self.d)
+                    if not self.move(dire[0],dire[1],world):
+                        self.d=(self.d+2)%4
+                        self.cooldown=10
+                else:
+                    self.cooldown=60
+            else:
+                self.cooldown-=1

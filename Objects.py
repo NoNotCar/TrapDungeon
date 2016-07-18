@@ -11,6 +11,7 @@ class Wall(Object):
     o3d = 4
     imgs=breakimgs("Rock")
     blevel=0
+    name="Wall"
     explodes = True
     def get_img(self,world):
         return self.imgs[((self.blevel-7)//8)+1]
@@ -24,6 +25,8 @@ class Tree(Object):
     o3d=7
     img=img4("Tree")
     explodes = True
+class IceWall(Wall):
+    imgs = breakimgs("IceBlock")
 class Explosive(Object):
     timer = 120
     updates = True

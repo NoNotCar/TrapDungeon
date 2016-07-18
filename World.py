@@ -5,10 +5,12 @@ from random import randint, choice
 import Img
 import Players
 import Enemies
+import Biomes
 from NoiseGen import perlin
 bnoise=perlin.SimplexNoise(256)
 tnoise=perlin.SimplexNoise(256)
 cashfont=Img.fload("cool",32)
+bscale=8.0
 bcfont=Img.fload("cool",64)
 threshold=1.3
 exp=Img.sndget("bomb")
@@ -127,6 +129,7 @@ class World(object):
             self.new_sector(sx,sy)
             return self.get_sector(o)
 class Sector(object):
+    spxwarn=False
     def __init__(self,w,x,y):
         self.x=x
         self.y=y
@@ -138,20 +141,19 @@ class Sector(object):
         self.w=w
         self.build()
     def build(self):
-        for x in range(16):
-            for y in range(16):
-                noise=tnoise.noise2(self.x+x/16.0, self.y+y/16.0)+1
-                if not randint(0,400):
-                    self.spawnX(Objects.UpgradePoint(x,y))
-                elif not randint(0,100):
-                    self.spawnX((Objects.Diamond if self.d<8 else Objects.RedDiamond)(x,y))
-                elif not randint(0,75) and self.d>=3:
-                    self.spawnX((Enemies.Ghost if randint(0,5) else Enemies.Ghost)(x,y))
-                elif noise<threshold:
-                    if randint(0,50):
-                        self.spawnX(Objects.Wall(x,y))
-                    else:
-                        self.spawnX(Enemies.AngryWall(x,y))
+        self.biome=Biomes.convert(bnoise.noise2(self.x/bscale,self.y/bscale))
+        for x,y in self.iterlocs():
+            self.change_t(x,y,self.biome.floor)
+            noise=tnoise.noise2(x/16.0, y/16.0)+1
+            if not randint(0,400):
+                self.spawn(Objects.UpgradePoint(x,y))
+            elif not randint(0,100):
+                self.spawn((Objects.Diamond if self.d<8 else Objects.RedDiamond)(x,y))
+            elif noise<threshold:
+                self.biome.GenerateWall(x,y,self)
+            else:
+                self.biome.GenerateSpace(x,y,self)
+        self.biome.GenerateEx(self)
     def oconvert(self):
         for x in range(self.size[0]):
             for y in range(self.size[1]):
@@ -171,9 +173,11 @@ class Sector(object):
         else:
             self.w.spawn(o)
     def spawnX(self,o):
+        if not self.spxwarn:
+            print "SPAWNX USED"
+            self.spxwarn=True
         self.o[o.x][o.y].append(o)
-        o.x+=self.x*16
-        o.y+=self.y*16
+        o.place(o.x+self.x*16,o.y+self.y*16)
         if o.updates:
             self.uos.append(o)
     def in_sector(self,x,y):
@@ -194,6 +198,11 @@ class Sector(object):
             return self.w.get_t(x,y)
         x,y=self.d_pos(x,y)
         return self.t[x][y]
+    def change_t(self,x,y,t):
+        if not self.in_sector(x,y):
+            raise NotImplementedError
+        x,y=self.d_pos(x,y)
+        self.t[x][y]=t
     def dest(self,o):
         x,y=self.d_pos(o.x,o.y)
         self.o[x][y].remove(o)
@@ -265,13 +274,17 @@ class Sector(object):
             return True
         else:
             self.w.spawn(Objects.Explosion(x, y))
+    def iterlocs(self):
+        for x in range(16):
+            for y in range(16):
+                yield x+self.x*16,y+self.y*16
 class HomeSector(Sector):
     def __init__(self,w,x,y,ps):
         Sector.__init__(self,w,x,y)
         for p in ps:
             self.spawn(p)
     def build(self):
-        self.spawnX(Objects.SellPoint(7,7,self))
+        self.spawn(Objects.SellPoint(7,7,self))
     def respawn(self,p):
         attempts=0
         while attempts<100:
@@ -285,6 +298,7 @@ class HomeSector(Sector):
         return False
 class Glade(Sector):
     def build(self):
+        self.biome=Biomes.Cave()
         self.r=randint(4,8)
         for x in range(16):
             for y in range(16):
