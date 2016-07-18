@@ -145,7 +145,7 @@ class Sector(object):
         for x,y in self.iterlocs():
             self.change_t(x,y,self.biome.floor)
             noise=tnoise.noise2(x/16.0, y/16.0)+1
-            if not randint(0,400):
+            if not randint(0,600):
                 self.spawn(Objects.UpgradePoint(x,y))
             elif not randint(0,100):
                 self.spawn((Objects.Diamond if self.d<8 else Objects.RedDiamond)(x,y))

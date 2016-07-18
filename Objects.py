@@ -1,7 +1,7 @@
 from BaseClasses import Object, MultiPart
 from Img import breakimgs, img4, sndget, imgstrip4
 import Items
-from Shop import Shop, GPUpgrade
+from Shop import Shop, GPUpgrade, SpeedUpgrade
 import Traps
 from random import randint
 from pygame import Rect
@@ -92,7 +92,7 @@ class GSellPoint(SellPoint):
 class UpgradePoint(Object):
     img=img4("UpgradeStation")
     o3d = 4
-    shop=Shop([(GPUpgrade,100)])
+    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50)])
     def interact(self,world,p):
         p.shop=self.shop
         p.ssel=0

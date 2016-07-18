@@ -17,6 +17,7 @@ class Player(Object):
     ssel=0
     scooldown=0
     dead=False
+    defaultspeed=4
     def __init__(self, x, y, col, c):
         self.place(x, y)
         self.imgs=create_man(col)
@@ -30,7 +31,7 @@ class Player(Object):
     def update(self, world, events):
         bpress = self.c.get_buttons(events)
         pause=False
-        self.speed=4
+        self.speed=self.defaultspeed
         reverse=False
         for se in self.statuseffects[:]:
             if se[1]:
@@ -88,8 +89,7 @@ class Player(Object):
         return self.imgs[self.d]
     def add_item(self,item):
         if item.name=="Upgrade":
-            item.upgrade(self)
-            return True
+            return item.upgrade(self)
         else:
             if item.stack:
                 for i in self.inv:
@@ -108,3 +108,4 @@ class Player(Object):
         self.inv=[Items.Pickaxe(),Items.Defuser()]
         self.isel%=len(self.inv)
         self.dead=1800
+        self.defaultspeed=4

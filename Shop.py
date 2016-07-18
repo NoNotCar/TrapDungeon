@@ -10,4 +10,11 @@ class GPUpgrade(object):
         for i in p.inv:
             if i.name=="Pickaxe":
                 i.golden=True
-                break
+                return True
+class SpeedUpgrade(object):
+    name="Upgrade"
+    img=img4("SpeedUpgrade")
+    def upgrade(self,p):
+        if p.defaultspeed<8:
+            p.defaultspeed+=1
+            return True
