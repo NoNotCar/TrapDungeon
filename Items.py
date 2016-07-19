@@ -86,7 +86,7 @@ class Trap(Item):
         return self.t.img
     def use(self,tars,world,tx,ty,p):
         if not tars:
-            world.spawn(self.t(tx,ty))
+            world.spawn(self.t(tx,ty,p))
             p.remove_item(self)
             pickup.play()
 class Compass(Item):

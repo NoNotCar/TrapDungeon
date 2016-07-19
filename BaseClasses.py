@@ -62,6 +62,8 @@ class Object(object):
         self.rect=self.orect.move(self.x*64+self.xoff,self.y*64+self.yoff)
     def explode(self,world):
         pass
+    def is_hidden(self,world,p):
+        return False
 class MultiPart(Object):
     img=blank64
     def __init__(self,x,y,p):

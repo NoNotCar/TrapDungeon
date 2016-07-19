@@ -7,14 +7,15 @@ class Trap(BaseClasses.Object):
     name="Trap"
     solid=False
     hidden=True
+    def __init__(self,x,y,p):
+        self.owner=p
+        self.place(x,y)
     def walkover(self,p,world):
         p.add_effect(self.effect)
         world.dest(self)
         trap.play()
-    def get_img(self,world):
-        if self.hidden:
-            return blank64
-        return self.img
+    def is_hidden(self,world,p):
+        return p is not self.owner and self.hidden
     def pick(self,world,strength):
         if not self.hidden:
             world.dest(self)
