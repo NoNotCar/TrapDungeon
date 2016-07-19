@@ -101,7 +101,7 @@ class SellPoint(Object):
     o3d = 4
     img=img4("CashPoint")
     name = "Shop"
-    shop=Shop([(Traps.SlowTrap,20),(Traps.ReverseTrap,40),(Traps.PauseTrap,80),(Items.Compass,50),(Bomb,20),(Items.FFToken,20)])
+    shop=Shop([(Traps.SlowTrap,15),(Traps.ReverseTrap,20),(Traps.PauseTrap,40),(Items.Compass,50),(Bomb,20),(Items.FFToken,20)])
     def __init__(self,x,y,world):
         self.place(x,y)
         for dx,dy in ((0,1),(1,0),(1,1)):

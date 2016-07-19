@@ -37,6 +37,9 @@ class Ghost(Enemy):
         else:
             self.anitick += 1
         self.img = self.imgs[self.anitick // 8]
+class IGhost(Ghost):
+    imgs = imgstrip4("IGhost")
+    img = imgs[0]
 class AGhost(Ghost):
     imgs = imgstrip4("AngryGhost")
     anitick = 0

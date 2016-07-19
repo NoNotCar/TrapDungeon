@@ -8,11 +8,13 @@ import Controllers
 import World
 import Players
 pdf = pygame.font.get_default_font()
-tfont=pygame.font.Font(pdf,60)
-sfont=pygame.font.Font(pdf,20)
+tfont=Img.fload("cool",64)
+sfont=Img.fload("cool",32)
 clock = pygame.time.Clock()
 tickimg=Img.img4("Tick")
 crossimg=Img.img4("Null")
+tselimgs=Img.imgstrip4f("TSelect",64)
+tsel=0
 cols=((255,0,0),(0,255,0),(0,0,255),(255,255,0),(255,0,255),(0,255,255),(255,128,0),(255,128,255))
 sps=((1,1),(14,1),(1,14),(14,14),(4,4),(11,4),(4,11),(11,11))
 pimgs=[Img.create_man(col)[2] for col in cols]
@@ -44,13 +46,20 @@ while not breaking:
     for event in pygame.event.get():
         check_exit(event)
         if event.type == pygame.MOUSEBUTTONDOWN:
-            breaking = True
+            mx,my=pygame.mouse.get_pos()
+            if pygame.Rect(864,700,192,64).collidepoint(mx,my):
+                mx-=864
+                tsel=mx//64
+            else:
+                breaking = True
         elif event.type==pygame.KEYDOWN and event.key==pygame.K_t:
             tutorial(screen)
     screen.fill((255, 0, 0))
     Img.bcentre(tfont,"DUNGEON",screen)
     Img.bcentre(sfont,"Click to start",screen,50)
     Img.bcentre(sfont,"Press T for Tutorial",screen,75)
+    Img.bcentrex(sfont,"TIME:",screen,650)
+    Img.cxblit(tselimgs[tsel],screen,700)
     pygame.display.flip()
     clock.tick(60)
     dj.update()
@@ -96,42 +105,44 @@ while not breaking:
     pygame.display.flip()
     clock.tick(60)
     dj.update()
-players=[Players.Player(sps[n][0],sps[n][1], cols[rsps[n]], rsc[n]) for n in range(len(rsc))]
-w=World.World(players)
-ss=(len(players)+1)//2
-superrect=pygame.Rect(0,0,448*ss,1032)
-superrect.centerx=screen.get_rect().centerx
-supersurf=screen.subsurface(superrect)
-subsurfs=[supersurf.subsurface(pygame.Rect(n%ss*448,n//ss*516,448,516)) for n in range(ss*2)]
-screen.fill((100,100,100))
-timerect=pygame.Rect(881,1024,159,56)
-timesurf=screen.subsurface(timerect)
-pygame.display.flip()
-timeleft=18000
 while True:
-    es=pygame.event.get()
-    for e in es:
-        check_exit(e)
+    players=[Players.Player(sps[n][0],sps[n][1], cols[rsps[n]], rsc[n]) for n in range(len(rsc))]
+    World.makenoise()
+    w=World.World(players)
+    ss=(len(players)+1)//2
+    superrect=pygame.Rect(0,0,448*ss,1032)
+    superrect.centerx=screen.get_rect().centerx
+    supersurf=screen.subsurface(superrect)
+    subsurfs=[supersurf.subsurface(pygame.Rect(n%ss*448,n//ss*516,448,516)) for n in range(ss*2)]
+    screen.fill((100,100,100))
+    timerect=pygame.Rect(881,1024,159,56)
+    timesurf=screen.subsurface(timerect)
+    pygame.display.flip()
+    timeleft=18000*(tsel+1)
+    while True:
+        es=pygame.event.get()
+        for e in es:
+            check_exit(e)
+        supersurf.fill((0,0,0))
+        w.update(es)
+        if all([p.dead>timeleft for p in players]):
+            break
+        for n,p in enumerate(players):
+            w.render(p,subsurfs[n])
+        if timeleft>0:
+            timeleft-=10 if all([p.dead for p in players]) else 1
+        else:
+            break
+        timesurf.fill((255,255,255))
+        Img.bcentrex(tfont,format_time(timeleft),screen,1000,xoffset=4)
+        pygame.display.update([superrect,timerect])
+        clock.tick(60)
+        dj.update()
+    winscore=max([p.cash for p in players])
+    screen.fill((100,100,100))
     supersurf.fill((0,0,0))
-    w.update(es)
-    if all([p.dead>timeleft for p in players]):
-        break
     for n,p in enumerate(players):
-        w.render(p,subsurfs[n])
-    if timeleft>0:
-        timeleft-=10 if all([p.dead for p in players]) else 1
-    else:
-        break
-    timesurf.fill((255,255,255))
-    Img.bcentrex(tfont,format_time(timeleft),screen,1024)
-    pygame.display.update([superrect,timerect])
-    clock.tick(60)
-    dj.update()
-winscore=max([p.cash for p in players])
-screen.fill((100,100,100))
-supersurf.fill((0,0,0))
-for n,p in enumerate(players):
-    Img.bcentre(tfont,"WIN" if p.cash==winscore else "LOSE",subsurfs[n],col=p.col)
-pygame.display.flip()
-pygame.time.wait(1000)
+        Img.bcentre(tfont,"WIN" if p.cash==winscore else "LOSE",subsurfs[n],col=p.col)
+    pygame.display.flip()
+    pygame.time.wait(2500)
 

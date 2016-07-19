@@ -8,7 +8,7 @@ class GPUpgrade(object):
     img=img4("GPUpgrade")
     def upgrade(self,p):
         for i in p.inv:
-            if i.name=="Pickaxe":
+            if i.name=="Pickaxe" and not i.golden:
                 i.golden=True
                 return True
 class SpeedUpgrade(object):

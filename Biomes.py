@@ -25,6 +25,6 @@ class Snow(Biome):
     floor = 2
     def GenerateSpace(self,x,y,sector):
         if not randint(0,50) and sector.d>=3:
-            sector.spawn((Enemies.Ghost if randint(0,1) else Enemies.Thump)(x,y))
+            sector.spawn((Enemies.Thump if randint(0,2) else Enemies.IGhost)(x,y))
 def convert(noise):
     return Cave() if noise<0.3 else Snow()
