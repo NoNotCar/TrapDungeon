@@ -41,4 +41,4 @@ class Volcanic(Biome):
         elif not randint(0,25):
             sector.spawn(Objects.RedDiamond(x,y))
 def convert(noise):
-    return Snow() if noise>0.3 else Cave() if noise>-0.5 else Volcanic()
+    return Snow() if noise>0.4 else Cave() if noise>-0.4 else Volcanic()

@@ -39,7 +39,7 @@ class World(object):
                     drects.append(e.rect)
         for p in self.ps:
             if not p.dead and p.rect.collidelist(erects)!=-1:
-                p.die()
+                p.die(self.get_sector(p))
             elif p.dead:
                 p.dead-=10 if all([op.dead for op in self.ps]) else 1
                 if p.dead<=0:

@@ -132,8 +132,9 @@ class SellPoint(Object):
                 p.remove_item(i)
         if sold:
             csh.play()
-        p.shop=self.shop
-        p.ssel=0
+        else:
+            p.shop=self.shop
+            p.ssel=0
 class GSellPoint(SellPoint):
     img = img4("BCashPoint")
     shop = Shop([(Bomb,10),(Dynamite,20),(Items.GigaDrill,250)])

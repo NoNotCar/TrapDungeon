@@ -55,7 +55,7 @@ while not breaking:
         elif event.type==pygame.KEYDOWN and event.key==pygame.K_t:
             tutorial(screen)
     screen.fill((255, 0, 0))
-    Img.bcentre(tfont,"DUNGEON",screen)
+    Img.bcentre(tfont,"TRAP DUNGEON",screen)
     Img.bcentre(sfont,"Click to start",screen,50)
     Img.bcentre(sfont,"Press T for Tutorial",screen,75)
     Img.bcentrex(sfont,"TIME:",screen,650)
