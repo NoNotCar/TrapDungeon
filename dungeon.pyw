@@ -96,7 +96,7 @@ while not breaking:
     pygame.display.flip()
     clock.tick(60)
     dj.update()
-players=[Players.Player(sps[n][0],sps[n][1], cols[rsps[n]], activecons[n]) for n in range(len(activecons))]
+players=[Players.Player(sps[n][0],sps[n][1], cols[rsps[n]], rsc[n]) for n in range(len(rsc))]
 w=World.World(players)
 ss=(len(players)+1)//2
 superrect=pygame.Rect(0,0,448*ss,1032)
