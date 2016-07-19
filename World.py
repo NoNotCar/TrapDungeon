@@ -22,7 +22,7 @@ class World(object):
         self.ps=ps
         self.w={(0,0):hs}
     def update(self,events):
-        for s in self.w.itervalues():
+        for s in [s for s in self.w.itervalues()]:
             s.update(events)
         erects=[]
         enemies=[]
@@ -115,7 +115,7 @@ class World(object):
             return self.w[(sx,sy)].is_clear(x,y,e)
         except KeyError:
             self.new_sector(sx,sy)
-            return self.is_clear(x,y)
+            return self.is_clear(x,y,e)
     def spawn(self,o):
         self.get_sector(o).spawn(o)
     def dest(self,o):
@@ -188,7 +188,9 @@ class Sector(object):
             return self.w.is_clear(x,y,e)
         for o in self.get_os(x,y):
             if o.solid:
-                if e not in self.w.ps and o not in self.w.ps:
+                if e.denemy and o.enemy:
+                    pass
+                elif e not in self.w.ps and o not in self.w.ps:
                     return False
                 elif not (e.enemy or o.enemy):
                     return False

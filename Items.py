@@ -3,7 +3,7 @@ import Direction as D
 pickup=sndget("pickup")
 defuse=sndget("tronic")
 csh=sndget("cash")
-stackplacers=["Bomb","Dynamite"]
+stackplacers=["Bomb","Dynamite","Missile"]
 class Item(object):
     img=None
     continuous=False
@@ -36,7 +36,7 @@ class StackPlacer(StackItem):
         self.c=oc
     def stuse(self,tars,world,tx,ty,p):
         if not tars:
-            world.spawn(self.c(tx,ty))
+            world.spawn(self.c(tx,ty,p))
             return True
 class Pickaxe(Item):
     img=img4("BasicPick")

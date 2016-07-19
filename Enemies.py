@@ -57,7 +57,7 @@ class AGhost(Ghost):
         if self.anitick == 15:
             if self.sleepy:
                 np = world.get_nearest_player(self.x, self.y)
-                if np[1]<=3:
+                if np[1]<3:
                     self.sleepy=False
                     self.target=np[0]
             else:
@@ -122,3 +122,36 @@ class Thump(Enemy):
                     self.cooldown=60
             else:
                 self.cooldown-=1
+class Spaceship(Enemy):
+    orect = pygame.Rect(12,20,40,40)
+    imgs=imgstrip4("Spaceship")
+    cooldown=0
+    loot = Objects.Tronics
+    def __init__(self,x,y):
+        self.place(x,y)
+        self.d=randint(0,3)
+    def update(self,world,events):
+        if not self.moving:
+            if not self.cooldown:
+                if world.get_nearest_player(self.x,self.y)[1]<10:
+                    dire=D.get_dir(self.d)
+                    rx,ry=D.offsetd(D.rotdir(dire,1),self)
+                    drx,dry=D.offsetd(D.ddirs1[(self.d+1)%4],self)
+                    if world.is_clear(rx,ry,self) and not world.is_clear(drx,dry,self):
+                        self.d+=1
+                        self.d%=4
+                        dire=D.get_dir(self.d)
+                        self.move(dire[0],dire[1],world)
+                    elif self.move(dire[0],dire[1],world):
+                        pass
+                    else:
+                        self.d-=1
+                        self.d%=4
+                        dire=D.get_dir(self.d)
+                        self.move(dire[0],dire[1],world)
+                else:
+                    self.cooldown=59
+            else:
+                self.cooldown-=1
+    def get_img(self,world):
+        return self.imgs[self.d]

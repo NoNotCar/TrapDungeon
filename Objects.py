@@ -1,12 +1,14 @@
 from BaseClasses import Object, MultiPart
-from Img import breakimgs, img4, sndget, imgstrip4
+from Img import breakimgs, img4, sndget, imgstrip4, imgrot
 import Items
 from Shop import Shop, GPUpgrade, SpeedUpgrade
 import Traps
 from random import randint
 from pygame import Rect
+import Direction as D
 breaksnd=sndget("break")
 pickup=sndget("pickup")
+missile=sndget("missile")
 class Wall(Object):
     o3d = 4
     imgs=breakimgs("Rock")
@@ -32,6 +34,8 @@ class Explosive(Object):
     updates = True
     r=2
     expshape="Cross"
+    def __init__(self,x,y,p):
+        self.place(x,y)
     def update(self, world, events):
         self.timer -= 1
         if self.timer == 0:
@@ -45,7 +49,7 @@ class Explosive(Object):
 class Bomb(Explosive):
     img = img4("Bomb")
     name = "Bomb"
-    def __init__(self, x, y, r=2):
+    def __init__(self, x, y, p ,r=2):
         self.x = x
         self.y = y
         self.r = r
@@ -58,6 +62,27 @@ class Dynamite(Explosive):
     timer=239
     def get_img(self,world):
         return self.imgs[7-(self.timer//30)]
+class Missile(Object):
+    enemy = True
+    denemy = True
+    img=img4("Missile")
+    fimgs=imgrot(img4("MissileIF"))
+    orect = Rect(24,12,16,44)
+    speed = 8
+    name="Missile"
+    updates = True
+    def __init__(self,x,y,firer):
+        self.place(x,y)
+        self.d=firer.d
+        self.dire=D.get_dir(firer.d)
+        missile.play()
+    def update(self,world,events):
+        if not self.moving:
+            if not self.move(self.dire[0],self.dire[1],world):
+                world.dest(self)
+                world.create_exp(self.x,self.y,1,"Square")
+    def get_img(self,world):
+        return self.fimgs[self.d]
 class Explosion(Object):
     img = img4("Exp")
     orect = Rect(12, 12, 40, 40)
@@ -92,7 +117,7 @@ class GSellPoint(SellPoint):
 class UpgradePoint(Object):
     img=img4("UpgradeStation")
     o3d = 4
-    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50)])
+    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Missile,30)])
     def interact(self,world,p):
         p.shop=self.shop
         p.ssel=0
@@ -114,4 +139,8 @@ class Ruby(ValuableObject):
     value = 30
     stacks = True
     name="Ruby"
-
+class Tronics(ValuableObject):
+    img=img4("CPUCard")
+    value = 100
+    stacks = True
+    name="Tronics"

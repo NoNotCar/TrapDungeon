@@ -12,6 +12,7 @@ class Object(object):
     updates=False
     enemy=False
     denemy=False
+    exclude=[]
     explodes=False
     def __init__(self,x,y):
         self.place(x,y)

@@ -19,7 +19,7 @@ class Cave(Biome):
             sector.spawn(Enemies.AngryWall(x,y))
     def GenerateSpace(self,x,y,sector):
         if not randint(0,50) and sector.d>=3:
-            sector.spawn((Enemies.Ghost if randint(0,5) else Enemies.AGhost)(x,y))
+            sector.spawn((Enemies.Spaceship if randint(0,5) else Enemies.AGhost)(x,y))
 class Snow(Biome):
     wall = Objects.IceWall
     floor = 2
