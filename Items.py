@@ -2,7 +2,6 @@ from Img import img4, sndget, imgstrip4
 import Direction as D
 pickup=sndget("pickup")
 defuse=sndget("tronic")
-csh=sndget("cash")
 stackplacers=["Bomb","Dynamite","Missile"]
 class Item(object):
     img=None
@@ -13,12 +12,7 @@ class Item(object):
     def get_img(self,p):
         return self.img
     def use(self,tars,world,tx,ty,p):
-        if self.value:
-            for t in tars:
-                if t.name=="Shop":
-                    p.remove_item(self)
-                    p.cash+=self.value*self.stack if self.stack else self.value
-                    csh.play()
+        pass
 class StackItem(Item):
     stack=1
     def use(self,tars,world,tx,ty,p):

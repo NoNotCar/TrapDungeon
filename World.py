@@ -157,6 +157,7 @@ class Sector(object):
                 nullbiomes.append((dx,dy))
         for x,y in self.iterlocs():
             biome=self.biome
+            #Soften biome boundaries
             if len(ebiomes) and randint(0,1):
                 try:
                     ax,ay=self.d_pos(x,y)
@@ -174,8 +175,6 @@ class Sector(object):
             noise=tnoise.noise2(x/16.0, y/16.0)+1
             if not randint(0,600):
                 self.spawn(Objects.UpgradePoint(x,y))
-            elif not randint(0,100):
-                self.spawn((Objects.Diamond if self.d<8 else Objects.RedDiamond)(x,y))
             elif noise<threshold:
                 biome.GenerateWall(x,y,self)
             else:

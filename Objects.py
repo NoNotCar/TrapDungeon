@@ -9,6 +9,7 @@ import Direction as D
 breaksnd=sndget("break")
 pickup=sndget("pickup")
 missile=sndget("missile")
+csh=sndget("cash")
 class Wall(Object):
     o3d = 4
     imgs=breakimgs("Rock")
@@ -33,6 +34,16 @@ class IceWall(Wall):
 class Obsidian(Wall):
     imgs=breakimgs("Obsidian")
     hardness = 16
+class GoldOre(Wall):
+    imgs=breakimgs("GoldRock")
+    hardness = 12
+    def pick(self,world,strength=1):
+        self.blevel+=strength
+        if self.blevel>=self.hardness*9-1:
+            world.dest(self)
+            world.spawn(Gold(self.x,self.y))
+            breaksnd.play()
+        return True
 class Explosive(Object):
     timer = 120
     updates = True
@@ -113,6 +124,14 @@ class SellPoint(Object):
             ty=y+dy
             world.spawn(MultiPart(tx,ty,self))
     def interact(self,world,p):
+        sold=False
+        for i in p.inv[:]:
+            if i.value:
+                sold=True
+                p.cash+=i.value*i.stack if i.stack else i.value
+                p.remove_item(i)
+        if sold:
+            csh.play()
         p.shop=self.shop
         p.ssel=0
 class GSellPoint(SellPoint):
@@ -143,6 +162,11 @@ class Ruby(ValuableObject):
     value = 30
     stacks = True
     name="Ruby"
+class Gold(ValuableObject):
+    img=img4("GoldNugget")
+    value = 50
+    stacks = True
+    name="Gold"
 class Tronics(ValuableObject):
     img=img4("CPUCard")
     value = 100
