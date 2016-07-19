@@ -7,8 +7,11 @@ import Players
 import Enemies
 import Biomes
 from NoiseGen import perlin
-bnoise=perlin.SimplexNoise(256)
-tnoise=perlin.SimplexNoise(256)
+def makenoise():
+    global bnoise
+    bnoise=perlin.SimplexNoise(256)
+    global tnoise
+    tnoise=perlin.SimplexNoise(256)
 cashfont=Img.fload("cool",32)
 bscale=8.0
 bcfont=Img.fload("cool",64)
