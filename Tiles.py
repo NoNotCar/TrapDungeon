@@ -7,4 +7,7 @@ class Tile(object):
 class Floor(Tile):
     def __init__(self,imgname):
         self.img=img4(imgname)
-tiles=[Floor("Floor"),Floor("Grass"),Floor("Snow")]
+class Lava(Tile):
+    passable = False
+    img=img4("Lava")
+tiles=[Floor("Floor"),Floor("Grass"),Floor("Snow"),Floor("ScorchedFloor"),Lava()]

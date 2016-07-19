@@ -41,6 +41,8 @@ class Object(object):
             if self.name=="Player":
                 for o in world.get_os(self.x,self.y):
                     o.walkover(self,world)
+                if not world.get_tclass(self.x,self.y).passable:
+                    self.sinking=1
         self.rerect()
     def move(self,dx,dy,world):
         tx=self.x+dx

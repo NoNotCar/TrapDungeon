@@ -15,11 +15,12 @@ class Wall(Object):
     blevel=0
     name="Wall"
     explodes = True
+    hardness=8
     def get_img(self,world):
-        return self.imgs[((self.blevel-7)//8)+1]
+        return self.imgs[((self.blevel-self.hardness+1)//self.hardness)+1]
     def pick(self,world,strength=1):
         self.blevel+=strength
-        if self.blevel>=71:
+        if self.blevel>=self.hardness*9-1:
             world.dest(self)
             breaksnd.play()
         return True
@@ -29,6 +30,9 @@ class Tree(Object):
     explodes = True
 class IceWall(Wall):
     imgs = breakimgs("IceBlock")
+class Obsidian(Wall):
+    imgs=breakimgs("Obsidian")
+    hardness = 16
 class Explosive(Object):
     timer = 120
     updates = True

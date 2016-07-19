@@ -1,5 +1,5 @@
 import pygame
-from Img import create_man, img4, colswap, sndget
+from Img import create_man, img4, colswap, sndget, create_sinking_man
 from BaseClasses import Object
 import Direction as D
 import Items
@@ -18,9 +18,11 @@ class Player(Object):
     scooldown=0
     dead=False
     defaultspeed=4
+    sinking=0
     def __init__(self, x, y, col, c):
         self.place(x, y)
         self.imgs=create_man(col)
+        self.sinkimgs=create_sinking_man(col)
         self.c=c
         self.col=col
         self.inv=[Items.Pickaxe(),Items.Defuser()]
@@ -47,7 +49,7 @@ class Player(Object):
                     reverse=True
             else:
                 self.statuseffects.remove(se)
-        if not (self.moving or pause or self.shop):
+        if not (self.moving or pause or self.shop or self.sinking):
             bpressc = self.c.get_pressed()
             for d in self.c.get_dirs():
                 self.d=D.index(d)
@@ -84,8 +86,15 @@ class Player(Object):
                     csh.play()
                 else:
                     nomoney.play()
+        elif self.sinking:
+            self.sinking+=1
+            if self.sinking==57:
+                self.die(world)
+                self.sinking=0
         self.isel=(self.isel+bpress[2])%len(self.inv)
     def get_img(self,world):
+        if self.sinking:
+            return self.sinkimgs[(self.sinking-1)//4]
         return self.imgs[self.d]
     def add_item(self,item):
         if item.name=="Upgrade":
@@ -104,8 +113,9 @@ class Player(Object):
         self.isel%=len(self.inv)
     def add_effect(self,effect):
         self.statuseffects.append([effect,etimes[effect]])
-    def die(self):
+    def die(self,world):
         self.inv=[Items.Pickaxe(),Items.Defuser()]
         self.isel%=len(self.inv)
         self.dead=1800
         self.defaultspeed=4
+        world.dest(self)

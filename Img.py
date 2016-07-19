@@ -93,6 +93,14 @@ def create_man(col):
     for i in imgs:
         pygame.draw.rect(i,col,pygame.Rect(20,32,24,28))
     return imgs
+himg=img4("ManSink")
+def create_sinking_man(col):
+    imgs=[blank64.copy() for _ in range(14)]
+    for n,i in enumerate(imgs):
+        sinksurf=i.subsurface(pygame.Rect(0,0,64,60))
+        sinksurf.blit(himg,(0,n*4))
+        pygame.draw.rect(sinksurf,col,pygame.Rect(20,32+n*4,24,28))
+    return imgs
 breakani=imgstrip4f("Break",16)
 def breakimgs(fil):
     bimg=img4(fil)

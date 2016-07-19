@@ -4,7 +4,7 @@ import pygame
 from random import randint, choice
 import Img
 import Players
-import Enemies
+import Direction as D
 import Biomes
 from NoiseGen import perlin
 def makenoise():
@@ -40,7 +40,6 @@ class World(object):
         for p in self.ps:
             if not p.dead and p.rect.collidelist(erects)!=-1:
                 p.die()
-                self.get_sector(p).dest(p)
             elif p.dead:
                 p.dead-=10 if all([op.dead for op in self.ps]) else 1
                 if p.dead<=0:
@@ -133,7 +132,6 @@ class World(object):
             self.new_sector(sx,sy)
             return self.get_sector(o)
 class Sector(object):
-    spxwarn=False
     def __init__(self,w,x,y):
         self.x=x
         self.y=y
@@ -146,17 +144,42 @@ class Sector(object):
         self.build()
     def build(self):
         self.biome=Biomes.convert(bnoise.noise2(self.x/bscale,self.y/bscale))
+        ebiomes={}
+        nullbiomes=[]
+        for dx,dy in D.directions:
+            try:
+                sbiome=self.w.w[D.offsetd((dx,dy),self)].biome
+                if sbiome!=self.biome:
+                    ebiomes[(dx,dy)]=sbiome
+                else:
+                    nullbiomes.append((dx,dy))
+            except KeyError:
+                nullbiomes.append((dx,dy))
         for x,y in self.iterlocs():
-            self.change_t(x,y,self.biome.floor)
+            biome=self.biome
+            if len(ebiomes) and randint(0,1):
+                try:
+                    ax,ay=self.d_pos(x,y)
+                    if (-1,0) not in nullbiomes and ax==0:
+                        biome=ebiomes[(-1,0)]
+                    elif (1,0) not in nullbiomes and ax==15:
+                        biome=ebiomes[(1,0)]
+                    elif (0,-1) not in nullbiomes and ay==0:
+                        biome=ebiomes[(0,-1)]
+                    elif (0,1) not in nullbiomes and ay==15:
+                        biome=ebiomes[(0,1)]
+                except KeyError:
+                    pass
+            self.change_t(x,y,biome.floor)
             noise=tnoise.noise2(x/16.0, y/16.0)+1
             if not randint(0,600):
                 self.spawn(Objects.UpgradePoint(x,y))
             elif not randint(0,100):
                 self.spawn((Objects.Diamond if self.d<8 else Objects.RedDiamond)(x,y))
             elif noise<threshold:
-                self.biome.GenerateWall(x,y,self)
+                biome.GenerateWall(x,y,self)
             else:
-                self.biome.GenerateSpace(x,y,self)
+                biome.GenerateSpace(x,y,self,noise)
         self.biome.GenerateEx(self)
     def oconvert(self):
         for x in range(self.size[0]):
@@ -177,9 +200,6 @@ class Sector(object):
         else:
             self.w.spawn(o)
     def spawnX(self,o):
-        if not self.spxwarn:
-            print "SPAWNX USED"
-            self.spxwarn=True
         self.o[o.x][o.y].append(o)
         o.place(o.x+self.x*16,o.y+self.y*16)
         if o.updates:
@@ -198,12 +218,14 @@ class Sector(object):
                     return False
                 elif not (e.enemy or o.enemy):
                     return False
-        return Tiles.tiles[self.get_t(x,y)].passable
+        return self.get_tclass(x,y).passable or e in self.w.ps
     def get_t(self,x,y):
         if not self.in_sector(x,y):
             return self.w.get_t(x,y)
         x,y=self.d_pos(x,y)
         return self.t[x][y]
+    def get_tclass(self,x,y):
+        return Tiles.tiles[self.get_t(x,y)]
     def change_t(self,x,y,t):
         if not self.in_sector(x,y):
             raise NotImplementedError
@@ -285,6 +307,7 @@ class Sector(object):
             for y in range(16):
                 yield x+self.x*16,y+self.y*16
 class HomeSector(Sector):
+    biome=Biomes.Cave()
     def __init__(self,w,x,y,ps):
         Sector.__init__(self,w,x,y)
         for p in ps:
