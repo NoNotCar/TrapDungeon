@@ -177,6 +177,7 @@ class FireElemental(Enemy):
     active=False
     speed = 1
     loot = Objects.RedDiamond
+    flying=True
     def update(self,world,events):
         if self.anitick<35:
             self.anitick+=1
@@ -186,6 +187,6 @@ class FireElemental(Enemy):
                 self.active=True
         if not self.moving and self.active:
             rd=choice(D.directions)
-            self.move(rd[0],rd[1],world,ignoretiles=True)
+            self.move(rd[0],rd[1],world)
     def get_img(self,world):
         return self.imgs[self.anitick//4]

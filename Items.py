@@ -29,7 +29,7 @@ class StackPlacer(StackItem):
         self.name=oc.name
         self.c=oc
     def stuse(self,tars,world,tx,ty,p):
-        if not tars and world.get_tclass(tx,ty).passable:
+        if not tars and (world.get_tclass(tx,ty).passable or self.c.flying):
             world.spawn(self.c(tx,ty,p))
             return True
 class Pickaxe(Item):

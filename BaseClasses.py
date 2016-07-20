@@ -14,6 +14,7 @@ class Object(object):
     denemy=False
     exclude=[]
     explodes=False
+    flying=False
     def __init__(self,x,y):
         self.place(x,y)
         self.rerect()
@@ -44,10 +45,10 @@ class Object(object):
                 if not world.get_tclass(self.x,self.y).passable:
                     self.sinking=1
         self.rerect()
-    def move(self,dx,dy,world,ignoreobs=False,ignoretiles=False):
+    def move(self,dx,dy,world,ignoreobs=False):
         tx=self.x+dx
         ty=self.y+dy
-        if world.is_clear(tx,ty,self,ignoretiles) or ignoreobs:
+        if world.is_clear(tx,ty,self,self.flying) or ignoreobs:
             world.move(self,tx,ty)
             self.moving=True
             self.xoff= -dx*64

@@ -86,6 +86,7 @@ class Missile(Object):
     speed = 8
     name="Missile"
     updates = True
+    flying = True
     def __init__(self,x,y,firer):
         self.place(x,y)
         self.d=firer.d
@@ -93,7 +94,7 @@ class Missile(Object):
         missile.play()
     def update(self,world,events):
         if not self.moving:
-            if not self.move(self.dire[0],self.dire[1],world,ignoretiles=True):
+            if not self.move(self.dire[0],self.dire[1],world):
                 world.dest(self)
                 world.create_exp(self.x,self.y,1,"Square")
     def get_img(self,world):
