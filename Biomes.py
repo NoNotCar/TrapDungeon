@@ -38,11 +38,11 @@ class Volcanic(Biome):
     def GenerateSpace(self,x,y,sector,noise):
         if noise>1.5 and randint(0,4):
             sector.change_t(x,y,4)
-            if not randint(0,15):
+            if not randint(0,15) and sector.d>=3:
                 sector.spawn(Enemies.FireElemental(x,y))
         elif not randint(0,25):
             sector.spawn(Objects.RedDiamond(x,y))
-        elif not randint(0,25):
+        elif not randint(0,25) and sector.d>=3:
             sector.spawn(Enemies.Ghost(x,y))
 def convert(noise):
     return Snow() if noise>0.4 else Cave() if noise>-0.4 else Volcanic()

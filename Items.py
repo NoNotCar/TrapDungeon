@@ -9,6 +9,7 @@ class Item(object):
     value=0
     stack=False
     name="Item"
+    inv=None
     def get_img(self,p):
         return self.img
     def use(self,tars,world,tx,ty,p):
@@ -135,3 +136,15 @@ class GigaDrill(Item):
 class Shield(Item):
     img=img4("Shield")
     name="Shield"
+class BOLReturn(Item):
+    img=img4("BOHOut")
+    def use(self,tars,world,tx,ty,p):
+        p.iinv=None
+class BagOfLoot(Item):
+    img=img4("BOH")
+    name = "BagLoot"
+    def __init__(self):
+        self.inv=[BOLReturn()]
+    def add_item(self,item):
+        if item.value:
+            return True

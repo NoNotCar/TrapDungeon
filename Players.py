@@ -21,6 +21,7 @@ class Player(Object):
     dead=False
     defaultspeed=4
     sinking=0
+    iinv=None
     def __init__(self, x, y, col, c):
         self.place(x, y)
         self.imgs=create_man(col)
@@ -55,22 +56,30 @@ class Player(Object):
                 self.statuseffects.remove(se)
         if not (self.moving or pause or self.shop or self.sinking):
             bpressc = self.c.get_pressed()
+            if self.iinv:
+                item=self.iinv.inv[self.isel]
+            else:
+                item=self.inv[self.isel]
             for d in self.c.get_dirs():
                 self.d=D.index(d)
                 if reverse:
                     d=D.anti(d)
                 if not bpressc[1] and self.move(d[0], d[1], world):
                     break
-            if self.inv[self.isel].continuous:
+            if item.continuous:
                 if bpressc[0]:
                     dx,dy=D.offset(self.d,self)
                     gos=world.get_os(*D.offset(self.d,self))
-                    self.inv[self.isel].use(gos,world,dx,dy,self)
+                    item.use(gos,world,dx,dy,self)
             else:
                 if bpress[0]:
                     dx,dy=D.offset(self.d,self)
                     gos=world.get_os(*D.offset(self.d,self))
-                    self.inv[self.isel].use(gos,world,dx,dy,self)
+                    if item.inv:
+                        self.iinv=item
+                        self.isel%=len(item.inv)
+                    else:
+                        item.use(gos,world,dx,dy,self)
             if bpress[1]:
                 for o in world.get_os(*D.offset(self.d,self)):
                     o.interact(world.w.get_sector(o),self)
@@ -104,17 +113,33 @@ class Player(Object):
         if item.name=="Upgrade":
             return item.upgrade(self)
         else:
-            if item.stack:
-                for i in self.inv:
-                    if i.name==item.name and i.stack<10:
-                        i.stack+=1
-                        return True
-            if len(self.inv)<7:
-                self.inv.append(item)
-                return True
+            invs=[]
+            for i in self.inv:
+                if i.inv and i.add_item(item):
+                    invs.append(i.inv)
+            invs.append(self.inv)
+            for inv in invs:
+                if item.stack:
+                    for i in inv:
+                        if i.name==item.name and i.stack<10:
+                            i.stack+=1
+                            return True
+                if len(inv)<7:
+                    inv.append(item)
+                    return True
     def remove_item(self,item):
-        self.inv.remove(item)
-        self.isel%=len(self.inv)
+        for i in self.inv[:]:
+            if i is item:
+                self.inv.remove(i)
+                break
+            elif i.inv:
+                if item in i.inv:
+                    i.inv.remove(item)
+                    break
+        if self.iinv:
+            self.isel%=len(self.iinv.inv)
+        else:
+            self.isel%=len(self.inv)
     def add_effect(self,effect):
         self.statuseffects.append([effect,etimes[effect]])
     def die(self,world):
@@ -133,3 +158,6 @@ class Player(Object):
         world.dest(self)
         pdie.play()
         self.shop=None
+    def get_all_items(self):
+        allinvs= [self.inv]+[i.inv for i in self.inv if i.inv]
+        return [item for inv in allinvs for item in inv]

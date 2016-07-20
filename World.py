@@ -66,7 +66,7 @@ class World(object):
                         if not o.is_hidden(self,p):
                             screen.blit(o.get_img(self),(x*64+o.xoff-asx,y*64+o.yoff-asy-o.o3d*4))
             pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
-            for n,i in enumerate(p.inv):
+            for n,i in enumerate(p.iinv.inv if p.iinv else p.inv):
                 screen.blit(i.get_img(p),(n*64,0))
                 if i.stack>1:
                     screen.blit(numerals[i.stack-2],(n*64+(44 if i.stack<10 else 36),36))

@@ -126,7 +126,7 @@ class SellPoint(Object):
             world.spawn(MultiPart(tx,ty,self))
     def interact(self,world,p):
         sold=False
-        for i in p.inv[:]:
+        for i in p.get_all_items()[:]:
             if i.value:
                 sold=True
                 p.cash+=i.value*i.stack if i.stack else i.value
@@ -142,7 +142,7 @@ class GSellPoint(SellPoint):
 class UpgradePoint(Object):
     img=img4("UpgradeStation")
     o3d = 4
-    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Missile,30),(Items.BridgeBuilder,50),(Items.Shield,300)],"UTILITIES")
+    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Missile,50),(Items.BridgeBuilder,50),(Items.Shield,300),(Items.BagOfLoot,200)],"UTILITIES")
     def interact(self,world,p):
         p.shop=self.shop
         p.ssel=0
