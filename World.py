@@ -86,7 +86,7 @@ class World(object):
             screen.blit(p.simg,(0,p.ssel*64+64))
         else:
             Img.bcentre(bcfont,"DEAD",screen,col=(255,255,255))
-            Img.bcentre(cashfont,"RESPAWN: "+str(p.dead//60),screen,64,(255,255,255))
+            Img.bcentre(cashfont,"RESPAWN: "+str(p.dead//60+1),screen,64,(255,255,255))
         Img.bcentrex(cashfont,str(p.cash),screen,468,(255,255,0))
         pygame.draw.rect(screen,p.col,pygame.Rect(0,0,448,516),2)
     def get_t(self,x,y):
@@ -97,6 +97,8 @@ class World(object):
         except KeyError:
             self.new_sector(sx,sy)
             return self.get_t(x,y)
+    def get_tclass(self,x,y):
+        return self.get_psector(x,y).get_tclass(x,y)
     def get_os(self,x,y):
         sx=x//16
         sy=y//16
@@ -123,9 +125,19 @@ class World(object):
         self.get_sector(o).spawn(o)
     def dest(self,o):
         self.get_sector(o).dest(o)
+    def change_t(self,x,y,t):
+        self.get_psector(x,y).change_t(x,y,t)
     def get_sector(self,o):
         sx=o.x//16
         sy=o.y//16
+        try:
+            return self.w[(sx,sy)]
+        except KeyError:
+            self.new_sector(sx,sy)
+            return self.get_sector(o)
+    def get_psector(self,x,y):
+        sx=x//16
+        sy=y//16
         try:
             return self.w[(sx,sy)]
         except KeyError:
@@ -206,7 +218,7 @@ class Sector(object):
     def in_sector(self,x,y):
         x,y=self.d_pos(x,y)
         return 0<=x<self.size[0] and 0<=y<self.size[1]
-    def is_clear(self,x,y,e):
+    def is_clear(self,x,y,e,ignore_passable=False):
         if not self.in_sector(x,y):
             return self.w.is_clear(x,y,e)
         for o in self.get_os(x,y):
@@ -217,7 +229,7 @@ class Sector(object):
                     return False
                 elif not (e.enemy or o.enemy):
                     return False
-        return self.get_tclass(x,y).passable or e in self.w.ps
+        return self.get_tclass(x,y).passable or e in self.w.ps or ignore_passable
     def get_t(self,x,y):
         if not self.in_sector(x,y):
             return self.w.get_t(x,y)
@@ -227,7 +239,7 @@ class Sector(object):
         return Tiles.tiles[self.get_t(x,y)]
     def change_t(self,x,y,t):
         if not self.in_sector(x,y):
-            raise NotImplementedError
+            return self.w.change_t(x,y,t)
         x,y=self.d_pos(x,y)
         self.t[x][y]=t
     def dest(self,o):

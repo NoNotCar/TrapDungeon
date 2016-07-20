@@ -1,7 +1,7 @@
 from BaseClasses import Object
 from Img import imgstrip4, imgstrip4f, img4
 import pygame
-from random import randint
+from random import randint, choice
 import Direction as D
 import Objects
 class Enemy(Object):
@@ -9,7 +9,7 @@ class Enemy(Object):
     loot=None
     updates = True
     def die(self,aworld):
-        if self.loot is not None:
+        if self.loot is not None and aworld.get_tclass(self.x,self.y).passable:
             aworld.spawn(self.loot(self.x,self.y))
 class Ghost(Enemy):
     imgs = imgstrip4("Ghost")
@@ -40,6 +40,7 @@ class Ghost(Enemy):
 class IGhost(Ghost):
     imgs = imgstrip4("IGhost")
     img = imgs[0]
+    loot = Objects.MiniDiamond
 class AGhost(Ghost):
     imgs = imgstrip4("AngryGhost")
     anitick = 0
@@ -158,3 +159,33 @@ class Spaceship(Enemy):
                 self.cooldown-=1
     def get_img(self,world):
         return self.imgs[self.d]
+class Fire(Enemy):
+    imgs=imgstrip4("Fire")
+    orect = pygame.Rect(16,24,32,28)
+    anitick=0
+    def update(self,world,events):
+        if self.anitick<35:
+            self.anitick+=1
+        else:
+            self.anitick=0
+    def get_img(self,world):
+        return self.imgs[self.anitick//4]
+class FireElemental(Enemy):
+    imgs=imgstrip4("FireElemental")
+    orect = pygame.Rect(16,24,32,28)
+    anitick=0
+    active=False
+    speed = 1
+    loot = Objects.RedDiamond
+    def update(self,world,events):
+        if self.anitick<35:
+            self.anitick+=1
+        else:
+            self.anitick=0
+            if not self.active and world.get_nearest_player(self.x,self.y)[1]<16:
+                self.active=True
+        if not self.moving and self.active:
+            rd=choice(D.directions)
+            self.move(rd[0],rd[1],world,ignoretiles=True)
+    def get_img(self,world):
+        return self.imgs[self.anitick//4]

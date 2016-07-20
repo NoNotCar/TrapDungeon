@@ -93,7 +93,7 @@ class Missile(Object):
         missile.play()
     def update(self,world,events):
         if not self.moving:
-            if not self.move(self.dire[0],self.dire[1],world):
+            if not self.move(self.dire[0],self.dire[1],world,ignoretiles=True):
                 world.dest(self)
                 world.create_exp(self.x,self.y,1,"Square")
     def get_img(self,world):
@@ -141,7 +141,7 @@ class GSellPoint(SellPoint):
 class UpgradePoint(Object):
     img=img4("UpgradeStation")
     o3d = 4
-    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Missile,30)])
+    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Missile,30),(Items.BridgeBuilder,50),(Items.Shield,300)])
     def interact(self,world,p):
         p.shop=self.shop
         p.ssel=0
@@ -157,12 +157,17 @@ class Diamond(ValuableObject):
     value=50
 class RedDiamond(ValuableObject):
     img = img4("RedDiamond")
-    value = 250
+    value = 150
 class Ruby(ValuableObject):
     img=img4("Ruby")
     value = 30
     stacks = True
     name="Ruby"
+class MiniDiamond(ValuableObject):
+    img=img4("MiniDiamond")
+    value = 30
+    stacks = True
+    name="MiniDiamond"
 class Gold(ValuableObject):
     img=img4("GoldNugget")
     value = 50

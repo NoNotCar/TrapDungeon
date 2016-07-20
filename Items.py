@@ -29,7 +29,7 @@ class StackPlacer(StackItem):
         self.name=oc.name
         self.c=oc
     def stuse(self,tars,world,tx,ty,p):
-        if not tars:
+        if not tars and world.get_tclass(tx,ty).passable:
             world.spawn(self.c(tx,ty,p))
             return True
 class Pickaxe(Item):
@@ -79,7 +79,7 @@ class Trap(Item):
     def get_img(self,p):
         return self.t.img
     def use(self,tars,world,tx,ty,p):
-        if not tars:
+        if not tars and world.get_tclass(tx,ty).passable:
             world.spawn(self.t(tx,ty,p))
             p.remove_item(self)
             pickup.play()
@@ -109,6 +109,13 @@ class FFToken(StackItem):
         p.add_effect("Fast")
         defuse.play()
         return True
+class BridgeBuilder(StackItem):
+    img=img4("BridgeItem")
+    name="Bridge"
+    def stuse(self,tars,world,tx,ty,p):
+        if not tars and not world.get_tclass(tx,ty).passable:
+            world.change_t(tx,ty,5)
+            return True
 class GigaDrill(Item):
     img=img4("GigaDrill")
     continuous = True
@@ -125,3 +132,6 @@ class GigaDrill(Item):
                     break
             if stop:
                 break
+class Shield(Item):
+    img=img4("Shield")
+    name="Shield"

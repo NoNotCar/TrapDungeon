@@ -10,4 +10,4 @@ class Floor(Tile):
 class Lava(Tile):
     passable = False
     img=img4("Lava")
-tiles=[Floor("Floor"),Floor("Grass"),Floor("Snow"),Floor("ScorchedFloor"),Lava()]
+tiles=[Floor("Floor"),Floor("Grass"),Floor("Snow"),Floor("ScorchedFloor"),Lava(),Floor("Bridge")]

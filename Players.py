@@ -3,9 +3,11 @@ from Img import create_man, img4, colswap, sndget, create_sinking_man
 from BaseClasses import Object
 import Direction as D
 import Items
+import Objects
 etimes={"Pause":1800,"Slow":900,"Fast":900,"Reverse":1800}
 csh=sndget("cash")
 nomoney=sndget("nomoney")
+pdie=sndget("pdie")
 class Player(Object):
     orect = pygame.Rect(20, 4, 24, 56)
     d=2
@@ -25,7 +27,9 @@ class Player(Object):
         self.sinkimgs=create_sinking_man(col)
         self.c=c
         self.col=col
-        self.inv=[Items.Pickaxe(),Items.Defuser()]
+        stbombs=Items.StackPlacer(Objects.Bomb)
+        stbombs.stack=3
+        self.inv=[Items.Pickaxe(),Items.Defuser(),stbombs]
         self.statuseffects=[]
         self.simg=img4("Pointer")
         self.rerect()
@@ -114,8 +118,17 @@ class Player(Object):
     def add_effect(self,effect):
         self.statuseffects.append([effect,etimes[effect]])
     def die(self,world):
-        self.inv=[Items.Pickaxe(),Items.Defuser()]
-        self.isel%=len(self.inv)
+        if not any([i.name=="Shield" for i in self.inv]):
+            stbombs=Items.StackPlacer(Objects.Bomb)
+            stbombs.stack=3
+            self.inv=[Items.Pickaxe(),Items.Defuser(),stbombs]
+            self.defaultspeed=4
+        else:
+            for i in self.inv:
+                if i.name=="Shield":
+                    self.inv.remove(i)
+                    break
         self.dead=1800
-        self.defaultspeed=4
+        self.isel%=len(self.inv)
         world.dest(self)
+        pdie.play()

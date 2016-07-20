@@ -44,10 +44,10 @@ class Object(object):
                 if not world.get_tclass(self.x,self.y).passable:
                     self.sinking=1
         self.rerect()
-    def move(self,dx,dy,world):
+    def move(self,dx,dy,world,ignoreobs=False,ignoretiles=False):
         tx=self.x+dx
         ty=self.y+dy
-        if world.is_clear(tx,ty,self):
+        if world.is_clear(tx,ty,self,ignoretiles) or ignoreobs:
             world.move(self,tx,ty)
             self.moving=True
             self.xoff= -dx*64
