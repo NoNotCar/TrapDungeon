@@ -1,8 +1,10 @@
 from Img import img4
 class Shop(object):
     items=[]
-    def __init__(self,items):
+    title="SHOP"
+    def __init__(self,items,name="SHOP"):
         self.items=items
+        self.title=name
 class GPUpgrade(object):
     name="Upgrade"
     img=img4("GPUpgrade")

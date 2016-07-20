@@ -132,3 +132,4 @@ class Player(Object):
         self.isel%=len(self.inv)
         world.dest(self)
         pdie.play()
+        self.shop=None

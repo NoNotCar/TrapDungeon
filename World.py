@@ -79,7 +79,7 @@ class World(object):
         elif p.shop:
             screen.fill((150,150,150))
             pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
-            Img.bcentrex(bcfont,"SHOP",screen,-16)
+            Img.bcentrex(bcfont,p.shop.title,screen,-16)
             for n,i in enumerate(p.shop.items):
                 Img.cxblit(i[0].img,screen,n*64+64,-32)
                 Img.bcentrex(cashfont,str(i[1]),screen,n*64+64,(255,255,0),32)

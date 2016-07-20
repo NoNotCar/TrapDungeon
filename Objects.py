@@ -142,7 +142,7 @@ class GSellPoint(SellPoint):
 class UpgradePoint(Object):
     img=img4("UpgradeStation")
     o3d = 4
-    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Missile,30),(Items.BridgeBuilder,50),(Items.Shield,300)])
+    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Missile,30),(Items.BridgeBuilder,50),(Items.Shield,300)],"UTILITIES")
     def interact(self,world,p):
         p.shop=self.shop
         p.ssel=0
