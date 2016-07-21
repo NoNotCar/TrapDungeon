@@ -15,6 +15,8 @@ class Object(object):
     exclude=[]
     explodes=False
     flying=False
+    dx=0
+    dy=0
     def __init__(self,x,y):
         self.place(x,y)
         self.rerect()
@@ -44,6 +46,8 @@ class Object(object):
                     o.walkover(self,world)
                 if not world.get_tclass(self.x,self.y).passable:
                     self.sinking=1
+            if not self.flying and world.get_tclass(self.x,self.y).slippery:
+                self.move(self.dx,self.dy,world)
         self.rerect()
     def move(self,dx,dy,world,ignoreobs=False):
         tx=self.x+dx
@@ -53,6 +57,8 @@ class Object(object):
             self.moving=True
             self.xoff= -dx*64
             self.yoff= -dy*64
+            self.dx=dx
+            self.dy=dy
             return True
         return False
     def interact(self,world,p):
