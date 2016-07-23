@@ -23,7 +23,6 @@ class DeathGame(object):
         self.p=p
         self.px=208
         self.objs=[]
-        self.inv=0
     def update(self):
         self.t-=1
         if not self.t%60:
@@ -41,16 +40,13 @@ class DeathGame(object):
                 o[1][1]+=4
             else:
                 self.objs.remove(o)
-        if self.inv:
-            self.inv-=1
         for o in self.objs[:]:
             if prect.move(self.px,440).colliderect((crect if o[0] else drect).move(*o[1])):
                 if o[0]:
                     self.p.cash+=2
                     csh.play()
-                elif not self.inv:
+                else:
                     self.t+=180
-                    self.inv=60
                     pdie.play()
                 self.objs.remove(o)
     def render(self,screen):
