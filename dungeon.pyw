@@ -125,14 +125,12 @@ while True:
             check_exit(e)
         supersurf.fill((0,0,0))
         w.update(es)
-        if all([p.dead>timeleft for p in players]):
-            break
         for n,p in enumerate(players):
             w.render(p,subsurfs[n])
-        if timeleft>0:
-            timeleft-=10 if all([p.dead for p in players]) else 1
-        else:
+        if timeleft<0:
             break
+        else:
+            timeleft-=1
         timesurf.fill((255,255,255))
         Img.bcentrex(tfont,format_time(timeleft),screen,1000,xoffset=4)
         pygame.display.update([superrect,timerect])

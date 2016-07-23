@@ -41,10 +41,12 @@ class World(object):
             if not p.dead and p.rect.collidelist(erects)!=-1:
                 p.die(self.get_sector(p))
             elif p.dead:
-                p.dead-=10 if all([op.dead for op in self.ps]) else 1
-                if p.dead<=0:
+                p.dead.update()
+                if p.dead.t<=0:
                     if not self.w[(0,0)].respawn(p):
-                        p.dead=60
+                        p.dead.t=60
+                    else:
+                        p.dead=None
         if drects:
             for e in enemies:
                 if not e.denemy and e.rect.collidelist(drects)!=-1:
@@ -85,8 +87,7 @@ class World(object):
                 Img.bcentrex(cashfont,str(i[1]),screen,n*64+64,(255,255,0),32)
             screen.blit(p.simg,(0,p.ssel*64+64))
         else:
-            Img.bcentre(bcfont,"DEAD",screen,col=(255,255,255))
-            Img.bcentre(cashfont,"RESPAWN: "+str(p.dead//60+1),screen,64,(255,255,255))
+            p.dead.render(screen)
         Img.bcentrex(cashfont,str(p.cash),screen,468,(255,255,0))
         pygame.draw.rect(screen,p.col,pygame.Rect(0,0,448,516),2)
     def get_t(self,x,y):

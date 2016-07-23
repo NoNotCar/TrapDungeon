@@ -4,6 +4,7 @@ from BaseClasses import Object
 import Direction as D
 import Items
 import Objects
+import DeathGame
 etimes={"Pause":1800,"Slow":900,"Fast":900,"Reverse":1800}
 csh=sndget("cash")
 nomoney=sndget("nomoney")
@@ -153,7 +154,7 @@ class Player(Object):
                 if i.name=="Shield":
                     self.inv.remove(i)
                     break
-        self.dead=1800
+        self.dead=DeathGame.DeathGame(self)
         self.isel%=len(self.inv)
         world.dest(self)
         pdie.play()
