@@ -23,6 +23,7 @@ class Player(Object):
     defaultspeed=4
     sinking=0
     iinv=None
+    rumbling=0
     def __init__(self, x, y, col, c):
         self.place(x, y)
         self.imgs=create_man(col)
@@ -41,6 +42,8 @@ class Player(Object):
         pause=False
         self.speed=self.defaultspeed
         reverse=False
+        if self.rumbling:
+            self.rumbling-=1
         for se in self.statuseffects[:]:
             if se[1]:
                 se[1]-=1
@@ -159,6 +162,7 @@ class Player(Object):
         world.dest(self)
         pdie.play()
         self.shop=None
+        self.rumbling=0
     def get_all_items(self):
         allinvs= [self.inv]+[i.inv for i in self.inv if i.inv]
         return [item for inv in allinvs for item in inv]

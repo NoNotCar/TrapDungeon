@@ -56,17 +56,20 @@ class World(object):
         if not (p.shop or p.dead):
             asx=p.x*64+int(round(p.xoff))-192
             asy=p.y*64+int(round(p.yoff))-256
+            r=(p.rumbling-1)//10+1
+            rx=randint(-r,r)
+            ry=randint(-r,r)
             sx=p.x
             sy=p.y
             for y in range(sy-self.m,sy+self.m+2):
                 for x in range(sx-self.m,sx+self.m+1):
-                    screen.blit(Tiles.tiles[self.get_t(x,y)].get_img(),(x*64-asx,y*64-asy))
+                    screen.blit(Tiles.tiles[self.get_t(x,y)].get_img(),(x*64-asx+rx,y*64-asy+ry))
             for y in range(sy-self.m,sy+self.m+2):
                 for x in range(sx-self.m,sx+self.m+1):
                     objs=self.get_os(x,y)
                     for o in objs:
                         if not o.is_hidden(self,p):
-                            screen.blit(o.get_img(self),(x*64+o.xoff-asx,y*64+o.yoff-asy-o.o3d*4))
+                            screen.blit(o.get_img(self),(x*64+o.xoff-asx+rx,y*64+o.yoff-asy-o.o3d*4+ry))
             pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
             for n,i in enumerate(p.iinv.inv if p.iinv else p.inv):
                 screen.blit(i.get_img(p),(n*64,0))
@@ -254,8 +257,11 @@ class Sector(object):
             elif dist==maxdist:
                 nearps.append(p)
         return choice(nearps), maxdist
+    def iter_players(self,x,y):
+        for p in self.w.ps:
+            dist=abs(p.x-x)+abs(p.y-y)
+            yield p,dist
     def create_exp(self, fx, fy, r, exps):
-        exp.play()
         if exps=="Cross":
             self.explode(fx, fy)
             for dx, dy in [[0, 1], [1, 0], [0, -1], [-1, 0]]:
@@ -269,6 +275,10 @@ class Sector(object):
             for x in range(fx-r,fx+r+1):
                 for y in range(fy-r,fy+r+1):
                     self.explode(x,y)
+        for p,d in self.iter_players(fx,fy):
+            if d<r*3:
+                p.rumbling=(r*3-d)*10
+        exp.play()
     def explode(self, x, y):
         gos=self.get_os(x,y)
         rt=False
