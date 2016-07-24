@@ -163,6 +163,7 @@ class Player(Object):
         pdie.play()
         self.shop=None
         self.rumbling=0
+        self.xoff,self.yoff=0,0
     def get_all_items(self):
         allinvs= [self.inv]+[i.inv for i in self.inv if i.inv]
         return [item for inv in allinvs for item in inv]
