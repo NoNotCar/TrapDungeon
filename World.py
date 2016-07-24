@@ -13,7 +13,7 @@ def makenoise():
     global tnoise
     tnoise=perlin.SimplexNoise(256)
 cashfont=Img.fload("cool",32)
-bscale=8.0
+bscale=128.0
 bcfont=Img.fload("cool",64)
 threshold=1.3
 exp=Img.sndget("bomb")
@@ -156,34 +156,8 @@ class Sector(object):
         self.w=w
         self.build()
     def build(self):
-        self.biome=Biomes.convert(bnoise.noise2(self.x/bscale,self.y/bscale))
-        ebiomes={}
-        nullbiomes=[]
-        for dx,dy in D.directions:
-            try:
-                sbiome=self.w.w[D.offsetd((dx,dy),self)].biome
-                if sbiome!=self.biome:
-                    ebiomes[(dx,dy)]=sbiome
-                else:
-                    nullbiomes.append((dx,dy))
-            except KeyError:
-                nullbiomes.append((dx,dy))
         for x,y in self.iterlocs():
-            biome=self.biome
-            #Soften biome boundaries
-            if len(ebiomes) and randint(0,1):
-                try:
-                    ax,ay=self.d_pos(x,y)
-                    if (-1,0) not in nullbiomes and ax==0:
-                        biome=ebiomes[(-1,0)]
-                    elif (1,0) not in nullbiomes and ax==15:
-                        biome=ebiomes[(1,0)]
-                    elif (0,-1) not in nullbiomes and ay==0:
-                        biome=ebiomes[(0,-1)]
-                    elif (0,1) not in nullbiomes and ay==15:
-                        biome=ebiomes[(0,1)]
-                except KeyError:
-                    pass
+            biome=Biomes.convert(bnoise.noise2(x/bscale,y/bscale))
             self.change_t(x,y,biome.floor)
             noise=tnoise.noise2(x/16.0, y/16.0)+1
             if not randint(0,600):
@@ -192,7 +166,6 @@ class Sector(object):
                 biome.GenerateWall(x,y,self)
             else:
                 biome.GenerateSpace(x,y,self,noise)
-        self.biome.GenerateEx(self)
     def oconvert(self):
         for x in range(self.size[0]):
             for y in range(self.size[1]):
@@ -326,6 +299,15 @@ class HomeSector(Sector):
             self.spawn(p)
     def build(self):
         self.spawn(Objects.SellPoint(7,7,self))
+        for x,y in self.iterlocs():
+            if (x in [0,15] or y in [0,15]) and randint(0,1):
+                biome=Biomes.convert(bnoise.noise2(x/bscale,y/bscale))
+                self.change_t(x,y,biome.floor)
+                noise=tnoise.noise2(x/16.0, y/16.0)+1
+                if noise<threshold:
+                    biome.GenerateWall(x,y,self)
+                else:
+                    biome.GenerateSpace(x,y,self,noise)
     def respawn(self,p):
         attempts=0
         while attempts<100:

@@ -8,8 +8,6 @@ class Biome(object):
         sector.spawn(self.wall(x,y))
     def GenerateSpace(self,x,y,sector,noise):
         pass
-    def GenerateEx(self,sector):
-        pass
 class Cave(Biome):
     wall = Objects.Wall
     def GenerateWall(self,x,y,sector):
@@ -43,7 +41,6 @@ class Ice(Biome):
         elif not randint(0,50):
             sector.spawn(Objects.Diamond(x,y))
 class Volcanic(Biome):
-    wall = Objects.Obsidian
     floor = 3
     def GenerateSpace(self,x,y,sector,noise):
         if noise>1.5 and randint(0,4):
@@ -54,5 +51,8 @@ class Volcanic(Biome):
             sector.spawn(Objects.RedDiamond(x,y))
         elif not randint(0,25) and sector.d>=3:
             sector.spawn(Enemies.Ghost(x,y))
+    def GenerateWall(self,x,y,sector):
+        sector.spawn((Objects.DarkObsidian if randint(0,1) else Objects.Obsidian)(x,y))
+biomes=[Ice(),Snow(),Cave(),Volcanic()]
 def convert(noise):
-    return Ice() if noise>0.7 else Snow() if noise>0.4 else Cave() if noise>-0.4 else Volcanic()
+    return biomes[0] if noise>0.7 else biomes[1] if noise>0.4 else biomes[2] if noise>-0.4 else biomes[3]

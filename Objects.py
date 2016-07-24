@@ -34,6 +34,10 @@ class IceWall(Wall):
 class Obsidian(Wall):
     imgs=breakimgs("Obsidian")
     hardness = 16
+class DarkObsidian(Object):
+    img=img4("DarkObsidian")
+    o3d = 4
+    explodes = True
 class GoldOre(Wall):
     imgs=breakimgs("GoldRock")
     hardness = 12
@@ -83,7 +87,8 @@ class Missile(Object):
     img=img4("Missile")
     fimgs=imgrot(img4("MissileIF"))
     orect = Rect(24,12,16,44)
-    speed = 8
+    speed = 1
+    aspeed=1
     name="Missile"
     updates = True
     flying = True
@@ -93,6 +98,9 @@ class Missile(Object):
         self.dire=D.get_dir(firer.d)
         missile.play()
     def update(self,world,events):
+        if self.aspeed<16:
+            self.aspeed+=1
+            self.speed=self.aspeed//2
         if not self.moving:
             if not self.move(self.dire[0],self.dire[1],world):
                 world.dest(self)
