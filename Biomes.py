@@ -43,7 +43,7 @@ class Ice(Biome):
 class Volcanic(Biome):
     floor = 3
     def GenerateSpace(self,x,y,sector,noise):
-        if noise>1.4 and randint(0,4):
+        if noise>1.5 and randint(0,4):
             sector.change_t(x,y,4)
             if not randint(0,15) and sector.d>=3:
                 sector.spawn(Enemies.FireElemental(x,y))

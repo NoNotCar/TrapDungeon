@@ -149,7 +149,7 @@ class World(object):
             return self.w[(sx,sy)]
         except KeyError:
             self.new_sector(sx,sy)
-            return self.get_sector(o)
+            return self.get_psector(x,y)
 class Sector(object):
     def __init__(self,w,x,y):
         self.x=x
@@ -342,17 +342,23 @@ class HomeSector(Sector):
         return False
 class Glade(Sector):
     def build(self):
-        self.biome=Biomes.Cave()
         self.r=randint(4,8)
-        for x in range(16):
-            for y in range(16):
-                noise=tnoise.noise2((self.x+x/16.0)*2, (self.y+y/16.0)*2)+1
-                dx=abs(x-5.5)
-                dy=abs(y-5.5)
-                if (dx**2+dy**2)**0.5<self.r:
-                    self.t[x][y]=1
-                    if not(x in [7,8] and y in [7,8]) and randint(0,1):
-                        self.spawnX(Objects.Tree(x,y))
+        for x,y in self.iterlocs():
+            ax,ay=self.d_pos(x,y)
+            biome=Biomes.convert(bnoise.noise2(x/bscale,y/bscale))
+            dx=abs(ax-7.5)
+            dy=abs(ay-7.5)
+            if (dx**2+dy**2)**0.5<self.r:
+                self.change_t(x,y,1)
+                if not(ax in [7,8] and ay in [7,8]) and randint(0,1):
+                    self.spawn(Objects.Tree(x,y))
+            else:
+                self.change_t(x,y,biome.floor)
+                noise=tnoise.noise2(x/16.0, y/16.0)+1
+                if not randint(0,600):
+                    self.spawn(Objects.UpgradePoint(x,y))
                 elif noise<threshold:
-                    self.spawnX(Objects.Wall(x,y))
+                    biome.GenerateWall(x,y,self)
+                else:
+                    biome.GenerateSpace(x,y,self,noise)
         self.spawn(Objects.GSellPoint(7+self.x*16,7+self.y*16,self))
