@@ -110,6 +110,7 @@ class Thump(Enemy):
     orect = pygame.Rect(8,8,48,48)
     img=img4("Thump")
     cooldown=0
+    loot = Objects.MiniDiamond
     def __init__(self,x,y):
         self.place(x,y)
         self.hoz=randint(0,1)

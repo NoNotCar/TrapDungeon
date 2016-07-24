@@ -17,7 +17,6 @@ bscale=128.0
 bcfont=Img.fload("cool",64)
 threshold=1.2
 exp=Img.sndget("bomb")
-icov=Img.img("InvCover")
 numerals=Img.imgstrip4f("Numbers",5)+[Img.img4("Ten")]
 class World(object):
     m=5
@@ -81,8 +80,6 @@ class World(object):
                     screen.blit(numerals[i.stack-2],(n*64+(44 if i.stack<10 else 36),36))
                 if n==p.isel:
                     pygame.draw.rect(screen,p.col,pygame.Rect(n*64,60,64,4))
-                if p.fmov:
-                    screen.blit(icov,(0,0))
             if p.statuseffects:
                 maxt=max([se[1] for se in p.statuseffects])
                 maxse=[se for se in p.statuseffects if se[1]==maxt][0]
@@ -296,6 +293,7 @@ class Sector(object):
                 if o.explodes:
                     rt=True
                     self.w.dest(o)
+                    o.explode(self)
                     self.w.spawn(Objects.Explosion(x, y))
                 elif o.enemy or o in self.w.ps:
                     pass

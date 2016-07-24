@@ -37,6 +37,12 @@ class DarkObsidian(Object):
     img=img4("DarkObsidian")
     o3d = 4
     explodes = True
+class InsaniumOre(Object):
+    img=img4("InsaniumOre")
+    o3d = 4
+    explodes = True
+    def explode(self,world):
+        world.spawn(Insanium(self.x,self.y))
 class GoldOre(Wall):
     imgs=breakimgs("GoldRock")
     hardness = 12
@@ -47,6 +53,8 @@ class GoldOre(Wall):
             world.spawn(Gold(self.x,self.y))
             breaksnd.play()
         return True
+    def explode(self,world):
+        world.spawn(Gold(self.x,self.y))
 class Explosive(Object):
     timer = 120
     updates = True
@@ -207,6 +215,11 @@ class Gold(ValuableObject):
     value = 50
     stacks = True
     name="Gold"
+class Insanium(ValuableObject):
+    img=img4("Insanium")
+    value = 300
+    stacks = True
+    name="Insanium"
 class Tronics(ValuableObject):
     img=img4("CPUCard")
     value = 100

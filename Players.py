@@ -25,7 +25,6 @@ class Player(Object):
     iinv=None
     rumbling=0
     dt=0
-    fmov=True
     def __init__(self, x, y, col, c):
         self.place(x, y)
         self.imgs=create_man(col)
@@ -69,10 +68,7 @@ class Player(Object):
                 if reverse:
                     d=D.anti(d)
                 if not bpressc[1] and self.move(d[0], d[1], world):
-                    self.fmov=True
                     break
-            else:
-                self.fmov=False
             if item.continuous:
                 if bpressc[0]:
                     dx,dy=D.offset(self.d,self)
