@@ -2,7 +2,7 @@ from Img import img4, sndget, imgstrip4
 import Direction as D
 pickup=sndget("pickup")
 defuse=sndget("tronic")
-stackplacers=["Bomb","Dynamite","Missile"]
+stackplacers=["Bomb","Dynamite","Missile","Mine"]
 class Item(object):
     img=None
     continuous=False
@@ -25,10 +25,11 @@ class StackItem(Item):
     def stuse(self,tars,world,tx,ty,p):
         return True
 class StackPlacer(StackItem):
-    def __init__(self,oc):
+    def __init__(self,oc,stack=1):
         self.img=oc.img
         self.name=oc.name
         self.c=oc
+        self.stack=stack
     def stuse(self,tars,world,tx,ty,p):
         if not tars and (world.get_tclass(tx,ty).passable or self.c.flying):
             world.spawn(self.c(tx,ty,p))
@@ -69,9 +70,7 @@ class ValuableItem(Item):
 class StackValuables(ValuableItem):
     stack = 1
 def wrap(item):
-    if item.name=="Trap":
-        return Trap(item)
-    elif item.name in stackplacers:
+    if item.name in stackplacers:
         return StackPlacer(item)
     return item()
 class Trap(Item):
@@ -91,7 +90,6 @@ class Compass(Item):
     def get_img(self,p):
         dx=p.x-7
         dy=p.y-7
-        n=0
         if abs(dx)>abs(dy):
             if dx>0:
                 n=3

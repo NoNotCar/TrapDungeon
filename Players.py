@@ -24,15 +24,15 @@ class Player(Object):
     sinking=0
     iinv=None
     rumbling=0
+    dt=0
+    fmov=True
     def __init__(self, x, y, col, c):
         self.place(x, y)
         self.imgs=create_man(col)
         self.sinkimgs=create_sinking_man(col)
         self.c=c
         self.col=col
-        stbombs=Items.StackPlacer(Objects.Bomb)
-        stbombs.stack=3
-        self.inv=[Items.Pickaxe(),Items.Defuser(),stbombs]
+        self.inv=[Items.Pickaxe(),Items.Defuser(),Items.StackPlacer(Objects.Bomb,3),Items.StackPlacer(Objects.Mine)]
         self.statuseffects=[]
         self.simg=img4("Pointer")
         self.rerect()
@@ -69,7 +69,10 @@ class Player(Object):
                 if reverse:
                     d=D.anti(d)
                 if not bpressc[1] and self.move(d[0], d[1], world):
+                    self.fmov=True
                     break
+            else:
+                self.fmov=False
             if item.continuous:
                 if bpressc[0]:
                     dx,dy=D.offset(self.d,self)
@@ -148,9 +151,7 @@ class Player(Object):
         self.statuseffects.append([effect,etimes[effect]])
     def die(self,world):
         if not any([i.name=="Shield" for i in self.inv]):
-            stbombs=Items.StackPlacer(Objects.Bomb)
-            stbombs.stack=3
-            self.inv=[Items.Pickaxe(),Items.Defuser(),stbombs]
+            self.inv=[Items.Pickaxe(),Items.Defuser(),Items.StackPlacer(Objects.Bomb,3),Items.StackPlacer(Objects.Mine)]
             self.defaultspeed=4
         else:
             for i in self.inv:
@@ -158,6 +159,7 @@ class Player(Object):
                     self.inv.remove(i)
                     break
         self.dead=DeathGame.DeathGame(self)
+        self.dt=10
         self.isel%=len(self.inv)
         world.dest(self)
         pdie.play()

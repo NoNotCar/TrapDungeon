@@ -17,6 +17,7 @@ bscale=128.0
 bcfont=Img.fload("cool",64)
 threshold=1.3
 exp=Img.sndget("bomb")
+icov=Img.img("InvCover")
 numerals=Img.imgstrip4f("Numbers",5)+[Img.img4("Ten")]
 class World(object):
     m=5
@@ -41,19 +42,22 @@ class World(object):
             if not p.dead and p.rect.collidelist(erects)!=-1:
                 p.die(self.get_sector(p))
             elif p.dead:
-                p.dead.update()
-                if p.dead.t<=0:
-                    if not self.w[(0,0)].respawn(p):
-                        p.dead.t=60
-                    else:
-                        p.dead=None
+                if p.dt:
+                    p.dt-=1
+                else:
+                    p.dead.update()
+                    if p.dead.t<=0:
+                        if not self.w[(0,0)].respawn(p):
+                            p.dead.t=60
+                        else:
+                            p.dead=None
         if drects:
             for e in enemies:
                 if not e.denemy and e.rect.collidelist(drects)!=-1:
                     self.get_sector(e).dest(e)
                     e.die(self)
     def render(self,p,screen):
-        if not (p.shop or p.dead):
+        if not (p.shop or (p.dead and not p.dt)):
             asx=p.x*64+int(round(p.xoff))-192
             asy=p.y*64+int(round(p.yoff))-256
             r=(p.rumbling-1)//10+1
@@ -77,6 +81,8 @@ class World(object):
                     screen.blit(numerals[i.stack-2],(n*64+(44 if i.stack<10 else 36),36))
                 if n==p.isel:
                     pygame.draw.rect(screen,p.col,pygame.Rect(n*64,60,64,4))
+                if p.fmov:
+                    screen.blit(icov,(0,0))
             if p.statuseffects:
                 maxt=max([se[1] for se in p.statuseffects])
                 maxse=[se for se in p.statuseffects if se[1]==maxt][0]
@@ -221,9 +227,12 @@ class Sector(object):
         self.t[x][y]=t
     def dest(self,o):
         x,y=self.d_pos(o.x,o.y)
-        self.o[x][y].remove(o)
-        if o in self.uos:
-            self.uos.remove(o)
+        if self.in_sector(o.x,o.y):
+            self.o[x][y].remove(o)
+            if o in self.uos:
+                self.uos.remove(o)
+        else:
+            self.w.dest(o)
     def move(self,o,tx,ty):
         self.dest(o)
         o.x=tx
@@ -293,6 +302,8 @@ class Sector(object):
                 else:
                     rt=True
                     o.explode(self)
+            else:
+                o.explode(self)
         if rt:
             return True
         else:

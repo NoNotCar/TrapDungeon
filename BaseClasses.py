@@ -42,12 +42,13 @@ class Object(object):
             self.yoff=0
             self.moving=False
             if self.name=="Player":
-                for o in world.get_os(self.x,self.y):
-                    o.walkover(self,world)
                 if not world.get_tclass(self.x,self.y).passable:
                     self.sinking=1
-            if not self.flying and world.get_tclass(self.x,self.y).slippery:
-                self.move(self.dx,self.dy,world)
+            if not self.flying:
+                for o in world.get_os(self.x,self.y):
+                    o.walkover(self,world)
+                if world.get_tclass(self.x,self.y).slippery:
+                    self.move(self.dx,self.dy,world)
         self.rerect()
     def move(self,dx,dy,world,ignoreobs=False):
         tx=self.x+dx
