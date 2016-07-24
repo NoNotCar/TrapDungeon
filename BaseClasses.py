@@ -74,6 +74,8 @@ class Object(object):
         pass
     def is_hidden(self,world,p):
         return False
+    def emp(self,world):
+        pass
 class MultiPart(Object):
     img=blank64
     def __init__(self,x,y,p):

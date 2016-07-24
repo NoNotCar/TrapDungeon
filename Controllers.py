@@ -7,6 +7,8 @@ class Controller(object):
         return [(0,0)]
     def get_pressed(self):
         return 0,0
+    def get_rstick(self):
+        return 0,0
 
 class Keyboard1(Controller):
     kconv = {pygame.K_w: (0, -1), pygame.K_s: (0, 1), pygame.K_a: (-1, 0), pygame.K_d: (1, 0)}
@@ -95,3 +97,8 @@ class UniJoyController(Controller):
             return ds
     def get_pressed(self):
         return (self.uj.get_b("A"),self.uj.get_b("B"))
+    def get_rstick(self):
+        if self.uj.rstick:
+            ds=self.uj.getdirstick(2)
+            return ds
+        return 0,0

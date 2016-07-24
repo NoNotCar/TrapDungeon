@@ -130,12 +130,13 @@ class Spaceship(Enemy):
     orect = pygame.Rect(12,20,40,40)
     imgs=imgstrip4("Spaceship")
     cooldown=0
+    emped=False
     loot = Objects.Tronics
     def __init__(self,x,y):
         self.place(x,y)
         self.d=randint(0,3)
     def update(self,world,events):
-        if not self.moving:
+        if not (self.moving or self.emped):
             if not self.cooldown:
                 if world.get_nearest_player(self.x,self.y)[1]<10:
                     dire=D.get_dir(self.d)
@@ -157,8 +158,14 @@ class Spaceship(Enemy):
                     self.cooldown=59
             else:
                 self.cooldown-=1
+        elif self.emped:
+            self.xoff=randint(-2,2)
+            self.yoff=randint(-2,2)
+            self.emped-=1
     def get_img(self,world):
         return self.imgs[self.d]
+    def emp(self,world):
+        self.emped=600
 class Fire(Enemy):
     imgs=imgstrip4("Fire")
     orect = pygame.Rect(16,24,32,28)

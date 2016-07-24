@@ -12,6 +12,7 @@ buconv = {"XBOX": {"A": 0, "B": 1, "X": 2, "Y": 3, "L1": 4, "R1": 5, "SELECT": 6
 
 class Unijoy:
     def __init__(self, jnum):
+        self.rstick=True
         self.jnum = jnum
         self.j = joystick.Joystick(jnum)
         self.j.init()
@@ -21,6 +22,7 @@ class Unijoy:
             self.type = "PS2"
         else:
             self.type = "CHEAP"
+            self.rstick=False
 
     def get_b(self, b):
         if b == "L2" and self.type == "XBOX":

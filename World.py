@@ -15,7 +15,7 @@ def makenoise():
 cashfont=Img.fload("cool",32)
 bscale=128.0
 bcfont=Img.fload("cool",64)
-threshold=1.3
+threshold=1.2
 exp=Img.sndget("bomb")
 icov=Img.img("InvCover")
 numerals=Img.imgstrip4f("Numbers",5)+[Img.img4("Ten")]
@@ -329,6 +329,8 @@ class HomeSector(Sector):
                     biome.GenerateWall(x,y,self)
                 else:
                     biome.GenerateSpace(x,y,self,noise)
+            else:
+                self.change_t(x,y,7)
     def respawn(self,p):
         attempts=0
         while attempts<100:

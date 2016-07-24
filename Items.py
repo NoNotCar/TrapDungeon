@@ -1,7 +1,7 @@
 from Img import img4, sndget, imgstrip4
 import Direction as D
 pickup=sndget("pickup")
-defuse=sndget("tronic")
+defuse=sndget("EMP")
 stackplacers=["Bomb","Dynamite","Missile","Mine"]
 class Item(object):
     img=None
@@ -48,6 +48,7 @@ class Pickaxe(Item):
 class Defuser(Item):
     imgs=imgstrip4("Defuser")
     cooldown=0
+    img=imgs[0]
     def get_img(self,p):
         if self.cooldown:
             self.cooldown-=1
@@ -58,8 +59,8 @@ class Defuser(Item):
             for dx in range(-3,4):
                 for dy in range(-3,4):
                     for o in world.get_os(p.x+dx,p.y+dy):
-                        if o.name=="Trap":
-                            o.hidden=False
+                        if o is not p:
+                            o.emp(world)
             self.cooldown=600
 class ValuableItem(Item):
     def __init__(self,oc):

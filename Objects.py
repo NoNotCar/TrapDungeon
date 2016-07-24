@@ -85,21 +85,27 @@ class Mine(Object):
     solid=False
     hidden=True
     img=img4("Mine")
+    dimg=img4("MineDeact")
     def __init__(self,x,y,p):
         self.owner=p
         self.place(x,y)
     def walkover(self,p,world):
-        world.dest(self)
-        world.create_exp(self.x,self.y,1,"Square")
+        if self.hidden:
+            world.dest(self)
+            world.create_exp(self.x,self.y,1,"Square")
     def is_hidden(self,world,p):
         return p is not self.owner and self.hidden
-    def pick(self,world,strength):
+    def pick(self,world,strength=1):
         if not self.hidden:
             world.dest(self)
             breaksnd.play()
     def explode(self,world):
         world.dest(self)
         world.create_exp(self.x,self.y,1,"Square")
+    def emp(self,world):
+        self.hidden=False
+    def get_img(self,world):
+        return self.img if self.hidden else self.dimg
 class Missile(Object):
     enemy = True
     denemy = True
@@ -144,7 +150,7 @@ class SellPoint(Object):
     o3d = 4
     img=img4("CashPoint")
     name = "Shop"
-    shop=Shop([(Mine,40),(Items.Compass,50),(Bomb,20),(Items.FFToken,20)])
+    shop=Shop([(Mine,40),(Items.Compass,50),(Bomb,20),(Missile,50)])
     def __init__(self,x,y,world):
         self.place(x,y)
         for dx,dy in ((0,1),(1,0),(1,1)):
@@ -169,7 +175,7 @@ class GSellPoint(SellPoint):
 class UpgradePoint(Object):
     img=img4("UpgradeStation")
     o3d = 4
-    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Missile,50),(Items.BridgeBuilder,50),(Items.Shield,300),(Items.BagOfLoot,200)],"UTILITIES")
+    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Items.BridgeBuilder,50),(Items.Shield,300),(Items.BagOfLoot,200),(Items.Defuser,100)],"UTILITIES")
     def interact(self,world,p):
         p.shop=self.shop
         p.ssel=0

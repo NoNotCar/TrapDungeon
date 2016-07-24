@@ -32,7 +32,7 @@ class Player(Object):
         self.sinkimgs=create_sinking_man(col)
         self.c=c
         self.col=col
-        self.inv=[Items.Pickaxe(),Items.Defuser(),Items.StackPlacer(Objects.Bomb,3),Items.StackPlacer(Objects.Mine)]
+        self.inv=[Items.Pickaxe(),Items.StackPlacer(Objects.Bomb,3),Items.StackPlacer(Objects.Mine)]
         self.statuseffects=[]
         self.simg=img4("Pointer")
         self.rerect()
@@ -112,6 +112,9 @@ class Player(Object):
                 self.die(world)
                 self.sinking=0
         self.isel=(self.isel+bpress[2])%len(self.inv)
+        rs=self.c.get_rstick()
+        if rs!=(0,0):
+            self.d=D.index(rs)
     def get_img(self,world):
         if self.sinking:
             return self.sinkimgs[(self.sinking-1)//4]
@@ -151,7 +154,7 @@ class Player(Object):
         self.statuseffects.append([effect,etimes[effect]])
     def die(self,world):
         if not any([i.name=="Shield" for i in self.inv]):
-            self.inv=[Items.Pickaxe(),Items.Defuser(),Items.StackPlacer(Objects.Bomb,3),Items.StackPlacer(Objects.Mine)]
+            self.inv=[Items.Pickaxe(),Items.StackPlacer(Objects.Bomb,3),Items.StackPlacer(Objects.Mine)]
             self.defaultspeed=4
         else:
             for i in self.inv:
@@ -169,3 +172,5 @@ class Player(Object):
     def get_all_items(self):
         allinvs= [self.inv]+[i.inv for i in self.inv if i.inv]
         return [item for inv in allinvs for item in inv]
+    def emp(self,world):
+        self.add_effect("Slow")

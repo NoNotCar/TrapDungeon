@@ -14,4 +14,4 @@ class Lava(Tile):
 class Ice(Tile):
     img = img4("Ice")
     slippery = True
-tiles=[Floor("Floor"),Floor("Grass"),Floor("Snow"),Floor("ScorchedFloor"),Lava(),Floor("Bridge"),Ice()]
+tiles=[Floor("Floor"),Floor("Grass"),Floor("Snow"),Floor("ScorchedFloor"),Lava(),Floor("Bridge"),Ice(),Floor("BrickFloor")]
