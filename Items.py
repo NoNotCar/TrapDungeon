@@ -10,7 +10,7 @@ class Item(object):
     stack=False
     name="Item"
     inv=None
-    def get_img(self,p):
+    def get_img(self,p,world):
         return self.img
     def use(self,tars,world,tx,ty,p):
         pass
@@ -43,13 +43,13 @@ class Pickaxe(Item):
     def use(self,tars,world,tx,ty,p):
         if tars:
             tars[0].pick(world.w.get_sector(tars[0]),self.golden+1)
-    def get_img(self,p):
+    def get_img(self,p,world):
         return self.gimg if self.golden else self.img
 class Defuser(Item):
     imgs=imgstrip4("Defuser")
     cooldown=0
     img=imgs[0]
-    def get_img(self,p):
+    def get_img(self,p,world):
         if self.cooldown:
             self.cooldown-=1
         return self.imgs[bool(self.cooldown)]
@@ -77,7 +77,7 @@ def wrap(item):
 class Trap(Item):
     def __init__(self,trapc):
         self.t=trapc
-    def get_img(self,p):
+    def get_img(self,p,world):
         return self.t.img
     def use(self,tars,world,tx,ty,p):
         if not tars and world.get_tclass(tx,ty).passable:
@@ -88,9 +88,28 @@ class Compass(Item):
     imgs=imgstrip4("Compass")
     name="Compass"
     img=imgs[0]
-    def get_img(self,p):
+    def get_img(self,p,world):
         dx=p.x-7
         dy=p.y-7
+        if abs(dx)>abs(dy):
+            if dx>0:
+                n=3
+            else:
+                n=1
+        else:
+            if dy>0:
+                n=0
+            else:
+                n=2
+        return self.imgs[n]
+class BHCompass(Item):
+    imgs=imgstrip4("BHCompass")
+    name="Compass"
+    img=imgs[0]
+    def get_img(self,p,world):
+        bx,by=world.get_nearest_box(p.x,p.y)
+        dx=p.x-bx
+        dy=p.y-by
         if abs(dx)>abs(dy):
             if dx>0:
                 n=3

@@ -1,5 +1,5 @@
 from BaseClasses import Object, MultiPart
-from Img import breakimgs, img4, sndget, imgstrip4, imgrot
+from Img import breakimgs, img4, sndget, imgstrip4, imgrot, colswap
 import Items
 from Shop import Shop, GPUpgrade, SpeedUpgrade
 from random import randint
@@ -43,6 +43,17 @@ class InsaniumOre(Object):
     explodes = True
     def explode(self,world):
         world.spawn(Insanium(self.x,self.y))
+class HuntedBox(Object):
+    img=img4("HuntedBox")
+    o3d = 4
+    explodes = True
+    boxcolours=((255,0,0),(0,255,0),(0,0,255),(255,255,0),(255,0,255),(0,255,255),(255,128,0))
+    def __init__(self,x,y,n):
+        self.place(x,y)
+        self.img=self.img.copy()
+        colswap(self.img,(128,128,128),self.boxcolours[n])
+    def explode(self,world):
+        world.w.boxlocs.remove((self.x,self.y))
 class GoldOre(Wall):
     imgs=breakimgs("GoldRock")
     hardness = 12

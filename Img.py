@@ -76,7 +76,7 @@ def cxblit(source, dest, y, xoff=0):
     drect=dest.get_rect()
     srect.centerx=drect.centerx+xoff
     srect.top=y
-    dest.blit(source,srect)
+    return dest.blit(source,srect)
 def sndget(fil):
     return pygame.mixer.Sound(np(loc+"Sounds/"+fil+".wav"))
 
@@ -110,7 +110,11 @@ def breakimgs(fil):
         timg.blit(ani,(0,0))
         bimgs.append(timg)
     return bimgs
-
+buttimg=img4("MenuButton")
+def button(text,font):
+    img=buttimg.copy()
+    bcentre(font,text,img,-4)
+    return img
 # draw some text into an area of a surface
 # automatically wraps words
 # returns any text that didn't get blitted

@@ -7,6 +7,7 @@ import Img
 import Controllers
 import World
 import Players
+import GameModes
 pdf = pygame.font.get_default_font()
 tfont=Img.fload("cool",64)
 sfont=Img.fload("cool",32)
@@ -21,6 +22,11 @@ pimgs=[Img.create_man(col)[2] for col in cols]
 tutimgs=[Img.img("T"+str(n)) for n in range(1,4)]
 breaking = False
 dj=Img.DJ(["Party"])
+cgamemode=Img.button("STANDARD",sfont)
+gamemodes=Img.button("GAME MODES",sfont)
+gm=GameModes.gamemodes[0]
+tutbutton=Img.button("TUTORIAL",sfont)
+brects=[]
 def format_time(time):
     t=time+60
     secs=t%3600//60
@@ -42,6 +48,22 @@ def tutorial(screen):
                 check_exit(event)
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     done=True
+def selgamemode(screen):
+    screen.fill((255,0,0))
+    Img.bcentrex(tfont,"Select Gamemode",screen,0)
+    brects=[]
+    for n,gm in enumerate(GameModes.gamemodes):
+        button=Img.button(gm.name,sfont)
+        brects.append(Img.cxblit(button,screen,100+n*64))
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            check_exit(event)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mx,my=pygame.mouse.get_pos()
+                for n,br in enumerate(brects):
+                    if br.collidepoint(mx,my):
+                        return GameModes.gamemodes[n]
 while not breaking:
     for event in pygame.event.get():
         check_exit(event)
@@ -51,15 +73,22 @@ while not breaking:
                 mx-=864
                 tsel=mx//64
             else:
-                breaking = True
-        elif event.type==pygame.KEYDOWN and event.key==pygame.K_t:
-            tutorial(screen)
+                for n,br in enumerate(brects):
+                    if br.collidepoint(mx,my):
+                        if n==2:
+                            tutorial(screen)
+                        elif n:
+                            gm=selgamemode(screen)
+                            cgamemode=Img.button(gm.name,sfont)
+                        else:
+                            breaking = True
     screen.fill((255, 0, 0))
-    Img.bcentre(tfont,"TRAP DUNGEON",screen)
-    Img.bcentre(sfont,"Click to start",screen,50)
-    Img.bcentre(sfont,"Press T for Tutorial",screen,75)
-    Img.bcentrex(sfont,"TIME:",screen,650)
-    Img.cxblit(tselimgs[tsel],screen,700)
+    brects=[]
+    Img.bcentre(tfont,"TRAP DUNGEON",screen,-100)
+    Img.bcentrex(sfont,"TIME:",screen,700)
+    Img.cxblit(tselimgs[tsel],screen,750)
+    for n,b in enumerate([cgamemode,gamemodes,tutbutton]):
+        brects.append(Img.cxblit(b,screen,500+n*64))
     pygame.display.flip()
     clock.tick(60)
     dj.update()
@@ -101,24 +130,34 @@ while not breaking:
         else:
             Img.cxblit(pimgs[acps[n]],screen,n*64+94)
             Img.cxblit(tickimg,screen,n*64+94,64)
-    Img.bcentrex(sfont,"Press <use> to join",screen,n*64+160,(255,255,255))
+    if len(rsps)<gm.maxp:
+        Img.bcentrex(sfont,"Press <use> to join",screen,n*64+160,(255,255,255))
+    else:
+        break
     pygame.display.flip()
     clock.tick(60)
     dj.update()
 while True:
-    players=[Players.Player(sps[n][0],sps[n][1], cols[rsps[n]], rsc[n]) for n in range(len(rsc))]
+    players=[Players.Player(sps[n][0],sps[n][1], cols[rsps[n]], rsc[n],gm) for n in range(len(rsc))]
     World.makenoise()
-    w=World.World(players)
-    ss=(len(players)+1)//2
-    superrect=pygame.Rect(0,0,448*ss,1032)
-    superrect.centerx=screen.get_rect().centerx
-    supersurf=screen.subsurface(superrect)
-    subsurfs=[supersurf.subsurface(pygame.Rect(n%ss*448,n//ss*516,448,516)) for n in range(ss*2)]
+    w=gm.world(players)
+    if gm.largescreen:
+        ss = len(players)
+        superrect = pygame.Rect(0, 0, 896 * ss, 1032)
+        superrect.centerx = screen.get_rect().centerx
+        supersurf = screen.subsurface(superrect)
+        subsurfs = [supersurf.subsurface(pygame.Rect(n*896,0,896,1032)) for n in range(ss)]
+    else:
+        ss = (len(players) + 1) // 2
+        superrect = pygame.Rect(0, 0, 448 * ss, 1032)
+        superrect.centerx = screen.get_rect().centerx
+        supersurf = screen.subsurface(superrect)
+        subsurfs = [supersurf.subsurface(pygame.Rect(n % ss * 448, n // ss * 516, 448, 516)) for n in range(ss * 2)]
     screen.fill((100,100,100))
     timerect=pygame.Rect(881,1024,159,56)
     timesurf=screen.subsurface(timerect)
     pygame.display.flip()
-    timeleft=18000*(tsel+1)
+    time=0 if gm.timereverse else 18000*(tsel+1)
     while True:
         es=pygame.event.get()
         for e in es:
@@ -126,13 +165,19 @@ while True:
         supersurf.fill((0,0,0))
         w.update(es)
         for n,p in enumerate(players):
-            w.render(p,subsurfs[n])
-        if timeleft<0:
+            if gm.largescreen:
+                w.large_render(p,subsurfs[n])
+            else:
+                w.render(p,subsurfs[n])
+        if time<0 and not gm.timereverse:
             break
         else:
-            timeleft-=1
+            time+=1 if gm.timereverse else -1
+        if gm.timereverse:
+            if w.is_done():
+                break
         timesurf.fill((255,255,255))
-        Img.bcentrex(tfont,format_time(timeleft),screen,1000,xoffset=4)
+        Img.bcentrex(tfont,format_time(time),screen,1000,xoffset=4)
         pygame.display.update([superrect,timerect])
         clock.tick(60)
         dj.update()

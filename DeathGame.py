@@ -21,27 +21,29 @@ class DeathGame(object):
         self.t=1200
         self.c=p.c
         self.p=p
-        self.px=208
         self.objs=[]
+        self.l=p.gm.largescreen
+        self.px=432 if self.l else 208
     def update(self):
         self.t-=1
+        s=self.l+1
         if not self.t%60:
-            rs=sample(range(14),6)
+            rs=sample(range(13*s+1),6*s)
             for n,r in enumerate(rs):
-                self.objs.append([not n,[r*32,-32]])
+                self.objs.append([n<s,[r*32,-32]])
         for d in self.c.get_dirs():
             if d in D.hoz:
-                if d==(1,0) and self.px<416:
+                if d==(1,0) and self.px<448*s-32:
                     self.px+=4
                 elif d==(-1,0) and self.px>0:
                     self.px-=4
         for o in self.objs[:]:
-            if o[1][1]<516:
+            if o[1][1]<516*s:
                 o[1][1]+=4
             else:
                 self.objs.remove(o)
         for o in self.objs[:]:
-            if prect.move(self.px,440).colliderect((crect if o[0] else drect).move(*o[1])):
+            if prect.move(self.px,440*s).colliderect((crect if o[0] else drect).move(*o[1])):
                 if o[0]:
                     self.p.cash+=2
                     csh.play()
@@ -50,8 +52,9 @@ class DeathGame(object):
                     pdie.play()
                 self.objs.remove(o)
     def render(self,screen):
+        s = self.l + 1
         Img.bcentre(dfont,"DEAD",screen,-48,self.p.col)
         Img.bcentre(sfont,str(self.t//60+1),screen,col=self.p.col)
-        screen.blit(self.mimg,(self.px,440))
+        screen.blit(self.mimg,(self.px,440*s))
         for o in self.objs:
             screen.blit((skull,coin)[o[0]],o[1])

@@ -24,7 +24,7 @@ class Ghost(Enemy):
         if self.anitick == 31:
             self.anitick = 0
             np = world.get_nearest_player(self.x, self.y)
-            if np[1]<16:
+            if np[1]<32:
                 p=np[0]
                 if p.x < self.x:
                     self.move(-1, 0, world)
@@ -118,7 +118,7 @@ class Thump(Enemy):
     def update(self,world,events):
         if not self.moving:
             if not self.cooldown:
-                if world.get_nearest_player(self.x,self.y)[1]<16:
+                if world.get_nearest_player(self.x,self.y)[1]<32:
                     dire=D.get_dir(self.d)
                     if not self.move(dire[0],dire[1],world):
                         self.d=(self.d+2)%4
@@ -139,7 +139,7 @@ class Spaceship(Enemy):
     def update(self,world,events):
         if not (self.moving or self.emped):
             if not self.cooldown:
-                if world.get_nearest_player(self.x,self.y)[1]<10:
+                if world.get_nearest_player(self.x,self.y)[1]<32:
                     dire=D.get_dir(self.d)
                     rx,ry=D.offsetd(D.rotdir(dire,1),self)
                     drx,dry=D.offsetd(D.ddirs1[(self.d+1)%4],self)
@@ -191,7 +191,7 @@ class FireElemental(Enemy):
             self.anitick+=1
         else:
             self.anitick=0
-            if not self.active and world.get_nearest_player(self.x,self.y)[1]<16:
+            if not self.active and world.get_nearest_player(self.x,self.y)[1]<32:
                 self.active=True
         if not self.moving and self.active:
             rd=choice(D.directions)

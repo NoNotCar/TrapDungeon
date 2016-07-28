@@ -7,6 +7,8 @@ import Players
 import Direction as D
 import Biomes
 from NoiseGen import perlin
+bnoise=None
+tnoise=None
 def makenoise():
     global bnoise
     bnoise=perlin.SimplexNoise(256)
@@ -17,9 +19,10 @@ bscale=128.0
 bcfont=Img.fload("cool",64)
 threshold=1.2
 exp=Img.sndget("bomb")
+def ir(n):
+    return int(round(n))
 numerals=Img.imgstrip4f("Numbers",5)+[Img.img4("Ten")]
 class World(object):
-    m=5
     def __init__(self,ps):
         hs=HomeSector(self,0,0,ps)
         self.ps=ps
@@ -55,27 +58,33 @@ class World(object):
                 if not e.denemy and e.rect.collidelist(drects)!=-1:
                     self.get_sector(e).dest(e)
                     e.die(self)
+        self.eup(events)
+    def eup(self,events):
+        pass
     def render(self,p,screen):
+        m=5
         if not (p.shop or (p.dead and not p.dt)):
-            asx=p.x*64+int(round(p.xoff))-192
-            asy=p.y*64+int(round(p.yoff))-256
+            asx=p.x*64+ir(p.xoff)-192
+            asy=p.y*64+ir(p.yoff)-256
             r=(p.rumbling-1)//10+1
             rx=randint(-r,r)
             ry=randint(-r,r)
             sx=p.x
             sy=p.y
-            for y in range(sy-self.m,sy+self.m+2):
-                for x in range(sx-self.m,sx+self.m+1):
+            for y in range(sy-m,sy+m+2):
+                for x in range(sx-m,sx+m+1):
                     screen.blit(Tiles.tiles[self.get_t(x,y)].get_img(),(x*64-asx+rx,y*64-asy+ry))
-            for y in range(sy-self.m,sy+self.m+2):
-                for x in range(sx-self.m,sx+self.m+1):
+            for y in range(sy-m,sy+m+2):
+                for x in range(sx-m,sx+m+1):
                     objs=self.get_os(x,y)
                     for o in objs:
                         if not o.is_hidden(self,p):
-                            screen.blit(o.get_img(self),(x*64+o.xoff-asx+rx,y*64+o.yoff-asy-o.o3d*4+ry))
+                            screen.blit(o.get_img(self),(x*64+ir(o.xoff)-asx+rx,y*64+ir(o.yoff)-asy-o.o3d*4+ry))
+                            if o in self.ps and o is not p and not self.debugtick:
+                                print o.xoff-p.xoff
             pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
             for n,i in enumerate(p.iinv.inv if p.iinv else p.inv):
-                screen.blit(i.get_img(p),(n*64,0))
+                screen.blit(i.get_img(p,self),(n*64,0))
                 if i.stack>1:
                     screen.blit(numerals[i.stack-2],(n*64+(44 if i.stack<10 else 36),36))
                 if n==p.isel:
@@ -96,6 +105,49 @@ class World(object):
             p.dead.render(screen)
         Img.bcentrex(cashfont,str(p.cash),screen,468,(255,255,0))
         pygame.draw.rect(screen,p.col,pygame.Rect(0,0,448,516),2)
+    def large_render(self,p,screen):
+        m=9
+        if not (p.shop or (p.dead and not p.dt)):
+            asx = p.x * 64 + ir(p.xoff) - 432
+            asy = p.y * 64 + ir(p.yoff) - 512
+            r = (p.rumbling - 1) // 10 + 1
+            rx = randint(-r, r)
+            ry = randint(-r, r)
+            sx = p.x
+            sy = p.y
+            for y in range(sy - m, sy + m + 2):
+                for x in range(sx - m, sx + m + 1):
+                    screen.blit(Tiles.tiles[self.get_t(x, y)].get_img(), (x * 64 - asx + rx, y * 64 - asy + ry))
+            for y in range(sy - m, sy + m + 2):
+                for x in range(sx - m, sx + m + 1):
+                    objs = self.get_os(x, y)
+                    for o in objs:
+                        if not o.is_hidden(self, p):
+                            screen.blit(o.get_img(self),
+                                        (x * 64 + ir(o.xoff) - asx + rx, y * 64 + ir(o.yoff) - asy - o.o3d * 4 + ry))
+            pygame.draw.rect(screen, (200, 200, 200), pygame.Rect(224, 0, 448, 64))
+            for n, i in enumerate(p.iinv.inv if p.iinv else p.inv):
+                screen.blit(i.get_img(p, self), (n * 64+224, 0))
+                if i.stack > 1:
+                    screen.blit(numerals[i.stack - 2], (n * 64 + (44 if i.stack < 10 else 36)+224, 36))
+                if n == p.isel:
+                    pygame.draw.rect(screen, p.col, pygame.Rect(n * 64+224, 60, 64, 4))
+            if p.statuseffects:
+                maxt = max([se[1] for se in p.statuseffects])
+                maxse = [se for se in p.statuseffects if se[1] == maxt][0]
+                pygame.draw.rect(screen, p.col, pygame.Rect(0, 507, maxt * 448 // Players.etimes[maxse[0]], 12))
+        elif p.shop:
+            screen.fill((150, 150, 150))
+            pygame.draw.rect(screen, (200, 200, 200), pygame.Rect(0, 0, 896, 64))
+            Img.bcentrex(bcfont, p.shop.title, screen, -16)
+            for n, i in enumerate(p.shop.items):
+                Img.cxblit(i[0].img, screen, n * 64 + 64, -32)
+                Img.bcentrex(cashfont, str(i[1]), screen, n * 64 + 64, (255, 255, 0), 32)
+            screen.blit(p.simg, (0, p.ssel * 64 + 64))
+        else:
+            p.dead.render(screen)
+        Img.bcentrex(cashfont, str(p.cash), screen, 964, (255, 255, 0))
+        pygame.draw.rect(screen, p.col, pygame.Rect(0, 0, 896, 1032), 2)
     def get_t(self,x,y):
         sx=x//16
         sy=y//16
@@ -178,7 +230,7 @@ class Sector(object):
                 self.o[x][y]=[]
         self.uos=[]
     def update(self,events):
-        for o in self.uos:
+        for o in self.uos[:]:
             o.update(self,events)
             if o.moving:
                 o.mupdate(self)

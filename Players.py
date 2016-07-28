@@ -25,13 +25,14 @@ class Player(Object):
     iinv=None
     rumbling=0
     dt=0
-    def __init__(self, x, y, col, c):
+    def __init__(self, x, y, col, c, gm):
         self.place(x, y)
         self.imgs=create_man(col)
         self.sinkimgs=create_sinking_man(col)
         self.c=c
         self.col=col
-        self.inv=[Items.Pickaxe(),Items.StackPlacer(Objects.Bomb,3),Items.StackPlacer(Objects.Mine)]
+        self.gm=gm
+        self.inv=self.gm.create_inv()
         self.statuseffects=[]
         self.simg=img4("Pointer")
         self.rerect()
@@ -150,7 +151,7 @@ class Player(Object):
         self.statuseffects.append([effect,etimes[effect]])
     def die(self,world):
         if not any([i.name=="Shield" for i in self.inv]):
-            self.inv=[Items.Pickaxe(),Items.StackPlacer(Objects.Bomb,3),Items.StackPlacer(Objects.Mine)]
+            self.inv=self.gm.create_inv()
             self.defaultspeed=4
         else:
             for i in self.inv:
