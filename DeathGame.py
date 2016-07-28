@@ -28,7 +28,7 @@ class DeathGame(object):
         self.t-=1
         s=self.l+1
         if not self.t%60:
-            rs=sample(range(13*s+1),6*s)
+            rs=sample(range(14*s),6*s)
             for n,r in enumerate(rs):
                 self.objs.append([n<s,[r*32,-32]])
         for d in self.c.get_dirs():
