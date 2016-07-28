@@ -1,8 +1,10 @@
-from Img import img4, sndget, imgstrip4
+from Img import img4, sndget, imgstrip4, rot_center
 import Direction as D
+import math
 pickup=sndget("pickup")
 defuse=sndget("EMP")
 stackplacers=["Bomb","Dynamite","Missile","Mine"]
+sixtyfourth=1.0/64
 class Item(object):
     img=None
     continuous=False
@@ -85,42 +87,32 @@ class Trap(Item):
             p.remove_item(self)
             pickup.play()
 class Compass(Item):
-    imgs=imgstrip4("Compass")
+    bimg=img4("CompassBase")
+    nimg=img4("Needle")
+    img=bimg.copy()
+    img.blit(nimg,(0,0))
     name="Compass"
-    img=imgs[0]
     def get_img(self,p,world):
-        dx=p.x-7
-        dy=p.y-7
-        if abs(dx)>abs(dy):
-            if dx>0:
-                n=3
-            else:
-                n=1
-        else:
-            if dy>0:
-                n=0
-            else:
-                n=2
-        return self.imgs[n]
+        img=self.bimg.copy()
+        dx=p.x+p.xoff*sixtyfourth-7
+        dy=7-p.y-p.yoff*sixtyfourth
+        ang=math.degrees(math.atan2(dy,dx))+90
+        img.blit(rot_center(self.nimg,ang),(0,0))
+        return img
 class BHCompass(Item):
-    imgs=imgstrip4("BHCompass")
-    name="Compass"
-    img=imgs[0]
+    bimg = img4("CompassBase")
+    nimg = img4("BHNeedle")
+    img = bimg.copy()
+    img.blit(nimg, (0, 0))
+    name = "Compass"
     def get_img(self,p,world):
+        img = self.bimg.copy()
         bx,by=world.get_nearest_box(p.x,p.y)
-        dx=p.x-bx
-        dy=p.y-by
-        if abs(dx)>abs(dy):
-            if dx>0:
-                n=3
-            else:
-                n=1
-        else:
-            if dy>0:
-                n=0
-            else:
-                n=2
-        return self.imgs[n]
+        dx=p.x+p.xoff*sixtyfourth-bx
+        dy=by-p.y-p.yoff*sixtyfourth
+        ang=math.degrees(math.atan2(dy,dx))+90
+        img.blit(rot_center(self.nimg,ang),(0,0))
+        return img
 class FFToken(StackItem):
     img=img4("FFToken")
     name = "FFToken"

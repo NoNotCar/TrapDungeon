@@ -41,7 +41,7 @@ class BoxHuntWorld(World):
                 nearbs=[(bx,by)]
             elif dist==maxdist:
                 nearbs.append((bx,by))
-        return choice(nearbs)
+        return nearbs[0]
 class BoxHuntSector(Sector):
     def __init__(self,w,x,y,boxes,boxnums):
         self.boxes=boxes
