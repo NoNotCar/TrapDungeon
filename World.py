@@ -80,8 +80,6 @@ class World(object):
                     for o in objs:
                         if not o.is_hidden(self,p):
                             screen.blit(o.get_img(self),(x*64+ir(o.xoff)-asx+rx,y*64+ir(o.yoff)-asy-o.o3d*4+ry))
-                            if o in self.ps and o is not p and not self.debugtick:
-                                print o.xoff-p.xoff
             pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
             for n,i in enumerate(p.iinv.inv if p.iinv else p.inv):
                 screen.blit(i.get_img(p,self),(n*64,0))
