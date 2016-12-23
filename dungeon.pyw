@@ -69,7 +69,7 @@ while not breaking:
         check_exit(event)
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx,my=pygame.mouse.get_pos()
-            if pygame.Rect(864,700,192,64).collidepoint(mx,my):
+            if pygame.Rect(864,764,192,64).collidepoint(mx,my):
                 mx-=864
                 tsel=mx//64
             else:
