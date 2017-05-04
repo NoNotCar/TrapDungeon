@@ -6,7 +6,7 @@ from random import choice
 np = os.path.normpath
 loc = os.getcwd() + "/Assets/"
 pygame.mixer.init()
-
+teamcolours=((255,0,0),(0,0,255))
 def img(fil):
     return pygame.image.load(np(loc + fil + ".png")).convert_alpha()
 def img4(fil):
@@ -77,6 +77,18 @@ def cxblit(source, dest, y, xoff=0):
     srect.centerx=drect.centerx+xoff
     srect.top=y
     return dest.blit(source,srect)
+def colswap(img,sc,ec):
+    px=pygame.PixelArray(img)
+    px.replace(sc,ec)
+def colcopy(i,sc,ec):
+    i=i.copy()
+    colswap(i,sc,ec)
+    return i
+def multicolcopy(img,*args):
+    img=colcopy(img,*args[0][0])
+    for s,e in args[0][1:]:
+        colswap(img,s,e)
+    return img
 def sndget(fil):
     return pygame.mixer.Sound(np(loc+"Sounds/"+fil+".wav"))
 
@@ -155,9 +167,6 @@ def drawTextRect(surface, text, color, rect, font, aa=False, bkg=None):
         text = text[i:]
 
     return text
-def colswap(img,sc,ec):
-    px=pygame.PixelArray(img)
-    px.replace(sc,ec)
 
 def rot_center(image, angle):
     """rotate an image while keeping its center and size"""

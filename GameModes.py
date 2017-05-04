@@ -2,7 +2,7 @@ from World import World, Sector, bscale, threshold, Glade
 import World as W
 from random import randint, choice
 import Biomes
-from Objects import HuntedBox
+from Objects import HuntedBox, FlagPoint
 import Objects
 import Items
 class BoxHuntWorld(World):
@@ -58,12 +58,17 @@ class BoxHuntSector(Sector):
                 biome.GenerateWall(x,y,self)
             else:
                 biome.GenerateSpace(x,y,self,noise)
+class CTFWorld(World):
+    def __init__(self,ps):
+        self.ps = ps
+        self.w = {(3 if n else -3, 0):W.HomeSector(self, 3 if n else -3, 0, [p for p in ps if p.team%2==n],FlagPoint,(n,)) for n in range(2)}
 class GameMode(object):
     name="Gamemode"
     maxp=8
     timereverse=False
     world=World
     largescreen=False
+    teams=False
     def create_inv(self):
         return None
 class Standard(GameMode):
@@ -82,4 +87,9 @@ class BoxHunt(GameMode):
     largescreen = True
     def create_inv(self):
         return [Items.Pickaxe(),Items.StackPlacer(Objects.Bomb,3),Items.StackPlacer(Objects.Mine),Items.BHCompass()]
-gamemodes=[Standard(),Duo(),BoxHunt()]
+class CTF(Standard):
+    name="CTF"
+    world=CTFWorld
+    timereverse = True
+    teams=True
+gamemodes=[Standard(),Duo(),BoxHunt(),CTF()]

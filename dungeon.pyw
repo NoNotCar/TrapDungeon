@@ -17,8 +17,8 @@ crossimg=Img.img4("Null")
 tselimgs=Img.imgstrip4f("TSelect",64)
 tsel=0
 cols=((255,0,0),(0,255,0),(0,0,255),(255,255,0),(255,0,255),(0,255,255),(255,128,0),(255,128,255))
+teamcols=((255,0,0),(0,0,255),(255,125,0),(0,125,255),(255,125,125),(125,125,255),(125,0,0),(0,0,125))
 sps=((1,1),(14,1),(1,14),(14,14),(4,4),(11,4),(4,11),(11,11))
-pimgs=[Img.create_man(col)[2] for col in cols]
 tutimgs=[Img.img("T"+str(n)) for n in range(1,4)]
 breaking = False
 dj=Img.DJ(["Party"])
@@ -98,6 +98,9 @@ activecons=[]
 acps=[]
 rsps=[]
 rsc=[]
+if gm.teams:
+    cols=teamcols
+pimgs=[Img.create_man(col)[2] for col in cols]
 while not breaking:
     gevents=pygame.event.get()
     for event in gevents:
@@ -138,7 +141,7 @@ while not breaking:
     clock.tick(60)
     dj.update()
 while True:
-    players=[Players.Player(sps[n][0],sps[n][1], cols[rsps[n]], rsc[n],gm) for n in range(len(rsc))]
+    players=[Players.Player(sps[n][0],sps[n][1], cols[rsps[n]], rsc[n],gm,rsps[n]%2 if gm.teams else None) for n in range(len(rsc))]
     World.makenoise()
     w=gm.world(players)
     if gm.largescreen:
@@ -174,18 +177,26 @@ while True:
         else:
             time+=1 if gm.timereverse else -1
         if gm.timereverse:
-            if w.is_done():
+            if w.is_done:
                 break
         timesurf.fill((255,255,255))
         Img.bcentrex(tfont,format_time(time),screen,1000,xoffset=4)
         pygame.display.update([superrect,timerect])
         clock.tick(60)
         dj.update()
-    winscore=max([p.cash for p in players])
-    screen.fill((100,100,100))
-    supersurf.fill((0,0,0))
-    for n,p in enumerate(players):
-        Img.bcentre(tfont,"WIN" if p.cash==winscore else "LOSE",subsurfs[n],col=p.col)
-    pygame.display.flip()
-    pygame.time.wait(2500)
+    if w.winner is not None:
+        screen.fill((100, 100, 100))
+        supersurf.fill((0, 0, 0))
+        for n, p in enumerate(players):
+            Img.bcentre(tfont, "WIN" if p.team==w.winner else "LOSE", subsurfs[n], col=p.col)
+        pygame.display.flip()
+        pygame.time.wait(2500)
+    else:
+        winscore=max([p.cash for p in players])
+        screen.fill((100,100,100))
+        supersurf.fill((0,0,0))
+        for n,p in enumerate(players):
+            Img.bcentre(tfont,"WIN" if p.cash==winscore else "LOSE",subsurfs[n],col=p.col)
+        pygame.display.flip()
+        pygame.time.wait(2500)
 

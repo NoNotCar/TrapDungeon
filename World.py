@@ -23,6 +23,8 @@ def ir(n):
     return int(round(n))
 numerals=Img.imgstrip4f("Numbers",5)+[Img.img4("Ten")]
 class World(object):
+    is_done=False
+    winner=None
     def __init__(self,ps):
         hs=HomeSector(self,0,0,ps)
         self.ps=ps
@@ -49,7 +51,7 @@ class World(object):
                 else:
                     p.dead.update()
                     if p.dead.t<=0:
-                        if not self.w[(0,0)].respawn(p):
+                        if not p.home.respawn(p):
                             p.dead.t=60
                         else:
                             p.dead=None
@@ -362,12 +364,15 @@ class Sector(object):
                 yield x+self.x*16,y+self.y*16
 class HomeSector(Sector):
     biome=Biomes.Cave()
-    def __init__(self,w,x,y,ps):
+    def __init__(self,w,x,y,ps,sellpoint=Objects.SellPoint,spargs=()):
+        self.sp=sellpoint
+        self.spa=spargs
         Sector.__init__(self,w,x,y)
         for p in ps:
-            self.spawn(p)
+            self.spawnX(p)
+            p.home=self
     def build(self):
-        self.spawn(Objects.SellPoint(7,7,self))
+        self.spawnX(self.sp(7,7,self,*self.spa))
         for x,y in self.iterlocs():
             if (x in [0,15] or y in [0,15]) and randint(0,1):
                 biome=Biomes.convert(bnoise.noise2(x/bscale,y/bscale))
@@ -386,7 +391,7 @@ class HomeSector(Sector):
             y=randint(0,15)
             if not self.get_os(x,y):
                 p.place(x,y)
-                self.spawn(p)
+                self.spawnX(p)
                 return True
             attempts+=1
         return False
@@ -411,4 +416,4 @@ class Glade(Sector):
                     biome.GenerateWall(x,y,self)
                 else:
                     biome.GenerateSpace(x,y,self,noise)
-        self.spawn(Objects.GSellPoint(7+self.x*16,7+self.y*16,self))
+        self.spawnX(Objects.GSellPoint(7,7,self))

@@ -1,4 +1,4 @@
-from Img import img4, sndget, imgstrip4, rot_center
+from Img import img4, sndget, imgstrip4, rot_center, colcopy
 import Direction as D
 import math
 pickup=sndget("pickup")
@@ -15,6 +15,8 @@ class Item(object):
     def get_img(self,p,world):
         return self.img
     def use(self,tars,world,tx,ty,p):
+        pass
+    def on_destroy(self):
         pass
 class StackItem(Item):
     stack=1
@@ -158,3 +160,12 @@ class BagOfLoot(Item):
     def add_item(self,item):
         if item.value:
             return True
+class Flag(Item):
+    img=img4("Flag")
+    name="Flag"
+    def __init__(self,col,home):
+        self.img=colcopy(self.img,(128,128,128),col)
+        self.home=home
+    def on_destroy(self):
+        self.home.flag=self
+        self.home.re_img()

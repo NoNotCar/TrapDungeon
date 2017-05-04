@@ -1,5 +1,5 @@
 from BaseClasses import Object, MultiPart
-from Img import breakimgs, img4, sndget, imgstrip4, imgrot, colswap
+from Img import breakimgs, img4, sndget, imgstrip4, imgrot, colswap, colcopy, teamcolours
 import Items
 from Shop import Shop, GPUpgrade, SpeedUpgrade
 from random import randint
@@ -175,7 +175,7 @@ class SellPoint(Object):
         for dx,dy in ((0,1),(1,0),(1,1)):
             tx=x+dx
             ty=y+dy
-            world.spawn(MultiPart(tx,ty,self))
+            world.spawnX(MultiPart(tx,ty,self))
     def interact(self,world,p):
         sold=False
         for i in p.get_all_items()[:]:
@@ -188,13 +188,54 @@ class SellPoint(Object):
         else:
             p.shop=self.shop
             p.ssel=0
+class FlagPoint(SellPoint):
+    img=img4("FlagPoint")
+    name = "Shop"
+    alarm=sndget("alarm")
+    def __init__(self,x,y,world,team):
+        self.t=team
+        self.img=colcopy(self.img,(0,0,255),tuple(c*4//5 for c in teamcolours[team]))
+        colswap(self.img,(0,0,127),tuple(c//2 for c in teamcolours[team]))
+        SellPoint.__init__(self,x,y,world)
+        self.flag=Items.Flag(teamcolours[team],self)
+        self.re_img()
+    def interact(self,world,p):
+        flags=[i for i in p.get_all_items() if i.name=="Flag"]
+        if flags:
+            if self.flag:
+                world.w.is_done=True
+                world.w.winner=self.t
+        elif p.team!=self.t:
+            if self.flag:
+                if p.add_item(self.flag):
+                    self.flag=None
+                    self.re_img()
+                    self.alarm.play()
+        else:
+            sold=False
+            for i in p.get_all_items()[:]:
+                if i.value:
+                    sold=True
+                    p.cash+=i.value*i.stack if i.stack else i.value
+                    p.remove_item(i)
+            if sold:
+                csh.play()
+            else:
+                p.shop=self.shop
+                p.ssel=0
+    def re_img(self):
+        self.aimg=self.img.copy()
+        if self.flag:
+            self.aimg.blit(self.flag.img,(32,32))
+    def get_img(self,world):
+        return self.aimg
 class GSellPoint(SellPoint):
     img = img4("BCashPoint")
     shop = Shop([(Bomb,10),(Dynamite,20),(Items.GigaDrill,250)])
 class UpgradePoint(Object):
     img=img4("UpgradeStation")
     o3d = 4
-    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Items.BridgeBuilder,50),(Items.Shield,300),(Items.BagOfLoot,200),(Items.Defuser,100)],"UTILITIES")
+    shop=Shop([(GPUpgrade,100),(SpeedUpgrade,50),(Items.BridgeBuilder,50),(Items.BagOfLoot,200),(Items.Defuser,100)],"UTILITIES")
     def interact(self,world,p):
         p.shop=self.shop
         p.ssel=0

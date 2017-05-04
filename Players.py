@@ -25,7 +25,7 @@ class Player(Object):
     iinv=None
     rumbling=0
     dt=0
-    def __init__(self, x, y, col, c, gm):
+    def __init__(self, x, y, col, c, gm, team=None):
         self.place(x, y)
         self.imgs=create_man(col)
         self.sinkimgs=create_sinking_man(col)
@@ -36,6 +36,7 @@ class Player(Object):
         self.statuseffects=[]
         self.simg=img4("Pointer")
         self.rerect()
+        self.team=team
         colswap(self.simg,(255,255,255),col)
     def update(self, world, events):
         bpress = self.c.get_buttons(events)
@@ -151,6 +152,8 @@ class Player(Object):
         self.statuseffects.append([effect,etimes[effect]])
     def die(self,world):
         if not any([i.name=="Shield" for i in self.inv]):
+            for i in self.inv:
+                i.on_destroy()
             self.inv=self.gm.create_inv()
             self.defaultspeed=4
         else:
