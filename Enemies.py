@@ -1,7 +1,7 @@
 from BaseClasses import Object
-from Img import imgstrip4, imgstrip4f, img4
+from Img import imgstripx, imgstripxf, imgx, hflip
 import pygame
-from random import randint, choice
+from random import randint, choice, shuffle
 import Direction as D
 import Objects
 class Enemy(Object):
@@ -12,7 +12,7 @@ class Enemy(Object):
         if self.loot is not None and aworld.get_tclass(self.x,self.y).passable:
             aworld.spawn(self.loot(self.x,self.y))
 class Ghost(Enemy):
-    imgs = imgstrip4("Ghost")
+    imgs = imgstripx("Ghost")
     img = imgs[0]
     anitick = 0
     updates=True
@@ -38,11 +38,11 @@ class Ghost(Enemy):
             self.anitick += 1
         self.img = self.imgs[self.anitick // 8]
 class IGhost(Ghost):
-    imgs = imgstrip4("IGhost")
+    imgs = imgstripx("IGhost")
     img = imgs[0]
     loot = Objects.MiniDiamond
 class AGhost(Ghost):
-    imgs = imgstrip4("AngryGhost")
+    imgs = imgstripx("AngryGhost")
     anitick = 0
     sleepy=True
     updates=True
@@ -90,8 +90,34 @@ class AGhost(Ghost):
             self.tunneling=False
             return None
         self.tunneling=(self.x+dx,self.y+dy)
+class Snek(Enemy):
+    imgs = [(i,hflip(i)) for i in imgstripx("snek")]
+    img = imgs[0][0]
+    anitick = 0
+    updates=True
+    orect = pygame.Rect(4, 20, 56, 20)
+    enemy=True
+    speed = 2
+    loot = Objects.Gold
+    ldx=1
+    phase=0
+    def update(self, world, events):
+        self.anitick+=1
+        self.anitick%=40
+        if not self.moving:
+            np = world.get_nearest_player(self.x, self.y)
+            if np[1]<32:
+                p=np[0]
+                if self.phase:
+                    if not (p.x < self.x and self.move(-1, 0, world)):
+                        self.move(1, 0, world)
+                elif not (p.y < self.y and self.move(0, -1, world)):
+                    self.move(0,1,world)
+                self.phase=not self.phase
+                self.ldx=self.dx or self.ldx
+        self.img = self.imgs[self.anitick // 4][self.ldx==-1]
 class AngryWall(Objects.Wall):
-    imgs=imgstrip4f("ExpRock",16)
+    imgs=imgstripxf("ExpRock",16)
     anitick=0
     updates = True
     def update(self,world,events):
@@ -99,16 +125,43 @@ class AngryWall(Objects.Wall):
             self.anitick+=1
             if self.anitick==121:
                 world.dest(self)
-                world.create_exp(self.x,self.y,3,"Square")
+                world.create_exp(self.x,self.y,3,"Circle")
         elif world.get_nearest_player(self.x,self.y)[1]==1:
             self.anitick=1
     def get_img(self,world):
         return self.imgs[(self.anitick+19)//20]
     def pick(self,world,strength=1):
         pass
+class GhostSpawner(Object):
+    imgs=imgstripxf("GhostSpawn",16)
+    active=False
+    updates = True
+    cooldown=0
+    o3d = 4
+    def update(self,world,events):
+        if self.cooldown:
+            self.cooldown-=1
+        else:
+            self.active=world.get_nearest_player(self.x,self.y)[1]<=5
+            if self.active:
+                ds=range(4)
+                shuffle(ds)
+                for d in ds:
+                    tx,ty=D.offset(d,self)
+                    if world.is_clear(tx,ty,self):
+                        world.spawn(Ghost(tx,ty))
+                        break
+                self.cooldown=300
+            else:
+                self.cooldown=30
+    def get_img(self,world):
+        return self.imgs[self.active]
+    def explode(self,world):
+        world.dest(self)
+        world.spawn(Objects.Tronics(self.x,self.y))
 class Thump(Enemy):
     orect = pygame.Rect(8,8,48,48)
-    img=img4("Thump")
+    img=imgx("Thump")
     cooldown=0
     loot = Objects.MiniDiamond
     def __init__(self,x,y):
@@ -129,7 +182,7 @@ class Thump(Enemy):
                 self.cooldown-=1
 class Spaceship(Enemy):
     orect = pygame.Rect(12,20,40,40)
-    imgs=imgstrip4("Spaceship")
+    imgs=imgstripx("Spaceship")
     cooldown=0
     emped=False
     loot = Objects.Tronics
@@ -168,7 +221,7 @@ class Spaceship(Enemy):
     def emp(self,world):
         self.emped=600
 class Fire(Enemy):
-    imgs=imgstrip4("Fire")
+    imgs=imgstripx("Fire")
     orect = pygame.Rect(16,24,32,28)
     anitick=0
     def update(self,world,events):
@@ -179,7 +232,7 @@ class Fire(Enemy):
     def get_img(self,world):
         return self.imgs[self.anitick//4]
 class FireElemental(Enemy):
-    imgs=imgstrip4("FireElemental")
+    imgs=imgstripx("FireElemental")
     orect = pygame.Rect(16,24,32,28)
     anitick=0
     active=False

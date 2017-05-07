@@ -1,4 +1,4 @@
-from Img import img4
+from Img import imgx
 class Shop(object):
     items=[]
     title="SHOP"
@@ -7,7 +7,7 @@ class Shop(object):
         self.title=name
 class GPUpgrade(object):
     name="Upgrade"
-    img=img4("GPUpgrade")
+    img=imgx("GPUpgrade")
     def upgrade(self,p):
         for i in p.inv:
             if i.name=="Pickaxe" and not i.golden:
@@ -15,7 +15,7 @@ class GPUpgrade(object):
                 return True
 class SpeedUpgrade(object):
     name="Upgrade"
-    img=img4("SpeedUpgrade")
+    img=imgx("SpeedUpgrade")
     def upgrade(self,p):
         if p.defaultspeed<8:
             p.defaultspeed+=1

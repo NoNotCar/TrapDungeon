@@ -1,21 +1,22 @@
 import pygame
-from Img import create_man, img4, colswap, sndget, create_sinking_man
+from Img import create_man, imgx, colswap, sndget, create_sinking_man
 from BaseClasses import Object
 import Direction as D
 import Items
 import Objects
 import DeathGame
-etimes={"Pause":1800,"Slow":900,"Fast":900,"Reverse":1800}
+etimes={"Pause":300,"Slow":900,"Fast":900,"Reverse":1800}
 csh=sndget("cash")
 nomoney=sndget("nomoney")
 pdie=sndget("pdie")
+teammoney=[0,0]
 class Player(Object):
     orect = pygame.Rect(20, 4, 24, 56)
     d=2
     updates = True
     name = "Player"
     isel=0
-    cash=0
+    _cash=0
     shop=None
     ssel=0
     scooldown=0
@@ -34,7 +35,7 @@ class Player(Object):
         self.gm=gm
         self.inv=self.gm.create_inv()
         self.statuseffects=[]
-        self.simg=img4("Pointer")
+        self.simg=imgx("Pointer")
         self.rerect()
         self.team=team
         colswap(self.simg,(255,255,255),col)
@@ -59,18 +60,12 @@ class Player(Object):
                     reverse=True
             else:
                 self.statuseffects.remove(se)
-        if not (self.moving or pause or self.shop or self.sinking):
+        if not (self.strafing or pause or self.shop or self.sinking):
             bpressc = self.c.get_pressed()
             if self.iinv:
-                item=self.iinv.inv[self.isel]
+                item = self.iinv.inv[self.isel]
             else:
-                item=self.inv[self.isel]
-            for d in self.c.get_dirs():
-                self.d=D.index(d)
-                if reverse:
-                    d=D.anti(d)
-                if not bpressc[1] and self.move(d[0], d[1], world):
-                    break
+                item = self.inv[self.isel]
             if item.continuous:
                 if bpressc[0]:
                     dx,dy=D.offset(self.d,self)
@@ -85,6 +80,13 @@ class Player(Object):
                         self.isel%=len(item.inv)
                     else:
                         item.use(gos,world,dx,dy,self)
+        if not (self.moving or pause or self.shop or self.sinking):
+            for d in self.c.get_dirs():
+                self.d=D.index(d)
+                if reverse:
+                    d=D.anti(d)
+                if not bpressc[1] and self.move(d[0], d[1], world):
+                    break
             if bpress[1]:
                 for o in world.get_os(*D.offset(self.d,self)):
                     o.interact(world.w.get_sector(o),self)
@@ -148,8 +150,8 @@ class Player(Object):
             self.isel%=len(self.iinv.inv)
         else:
             self.isel%=len(self.inv)
-    def add_effect(self,effect):
-        self.statuseffects.append([effect,etimes[effect]])
+    def add_effect(self,effect,time=None):
+        self.statuseffects.append([effect,etimes[effect] if time is None else time])
     def die(self,world):
         if not any([i.name=="Shield" for i in self.inv]):
             for i in self.inv:
@@ -174,3 +176,17 @@ class Player(Object):
         return [item for inv in allinvs for item in inv]
     def emp(self,world):
         self.add_effect("Slow")
+    @property
+    def cash(self):
+        if self.team is None:
+            return self._cash
+        return teammoney[self.team]
+    @cash.setter
+    def cash(self,value):
+        if self.team is None:
+            self._cash=value
+        else:
+            teammoney[self.team]=value
+    @property
+    def strafing(self):
+        return self.moving and D.get_dir(self.d)!=(self.dx,self.dy)

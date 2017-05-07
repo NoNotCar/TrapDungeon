@@ -1,4 +1,4 @@
-from Img import img4
+from Img import imgx
 class Tile(object):
     img=None
     passable=True
@@ -7,11 +7,11 @@ class Tile(object):
         return self.img
 class Floor(Tile):
     def __init__(self,imgname):
-        self.img=img4(imgname)
+        self.img=imgx(imgname)
 class Lava(Tile):
     passable = False
-    img=img4("Lava")
+    img=imgx("Lava")
 class Ice(Tile):
-    img = img4("Ice")
+    img = imgx("Ice")
     slippery = True
-tiles=[Floor("Floor"),Floor("Grass"),Floor("Snow"),Floor("ScorchedFloor"),Lava(),Floor("Bridge"),Ice(),Floor("BrickFloor")]
+tiles=[Floor("Floor"),Floor("Grass"),Floor("Snow"),Floor("ScorchedFloor"),Lava(),Floor("Bridge"),Ice(),Floor("BrickFloor"),Floor("Sand")]

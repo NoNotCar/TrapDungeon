@@ -47,7 +47,7 @@ class DeathGame(object):
                 if o[0]:
                     self.p.cash+=2
                     csh.play()
-                else:
+                elif self.t<1800:
                     self.t+=180
                     pdie.play()
                 self.objs.remove(o)

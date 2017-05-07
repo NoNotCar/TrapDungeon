@@ -7,24 +7,31 @@ import Players
 import Direction as D
 import Biomes
 from NoiseGen import perlin
+from math import ceil
 bnoise=None
+bnoise2=None
 tnoise=None
 def makenoise():
-    global bnoise
+    global bnoise,bnoise2
     bnoise=perlin.SimplexNoise(256)
+    bnoise2=perlin.SimplexNoise(256)
     global tnoise
     tnoise=perlin.SimplexNoise(256)
 cashfont=Img.fload("cool",32)
 bscale=128.0
+b2scale=160.0
 bcfont=Img.fload("cool",64)
 threshold=1.2
 exp=Img.sndget("bomb")
 def ir(n):
     return int(round(n))
-numerals=Img.imgstrip4f("Numbers",5)+[Img.img4("Ten")]
+numerals=Img.imgstripxf("Numbers",5)+[Img.imgx("Ten")]
+scales=[16,32,48,64]
 class World(object):
     is_done=False
     winner=None
+    invscale=3
+    wscale=2
     def __init__(self,ps):
         hs=HomeSector(self,0,0,ps)
         self.ps=ps
@@ -64,90 +71,54 @@ class World(object):
     def eup(self,events):
         pass
     def render(self,p,screen):
-        m=5
+        screenrect=screen.get_rect()
+        sh,sw=screenrect.h,screenrect.w
+        awscale=scales[self.wscale]
+        aiscale=scales[self.invscale]
+        riscale=self.invscale+1
+        m=(sw/float(awscale)+1)/2.0
+        rm=int(ceil(m))
+        wconvmult=awscale/64.0
         if not (p.shop or (p.dead and not p.dt)):
-            asx=p.x*64+ir(p.xoff)-192
-            asy=p.y*64+ir(p.yoff)-256
+            asx=p.x*awscale+ir(p.xoff)*wconvmult-(m-1)*awscale
+            asy=p.y*awscale+ir(p.yoff)*wconvmult-(m-1)*awscale-aiscale
             r=(p.rumbling-1)//10+1
             rx=randint(-r,r)
             ry=randint(-r,r)
             sx=p.x
             sy=p.y
-            for y in range(sy-m,sy+m+2):
-                for x in range(sx-m,sx+m+1):
-                    screen.blit(Tiles.tiles[self.get_t(x,y)].get_img(),(x*64-asx+rx,y*64-asy+ry))
-            for y in range(sy-m,sy+m+2):
-                for x in range(sx-m,sx+m+1):
+            for y in range(sy-rm-1,sy+rm+1):
+                for x in range(sx-rm-1,sx+rm+1):
+                    screen.blit(Tiles.tiles[self.get_t(x,y)].get_img()[self.wscale],(x*awscale-asx+rx,y*awscale-asy+ry))
+            for y in range(sy-rm-1,sy+rm+1):
+                for x in range(sx-rm-1,sx+rm+1):
                     objs=self.get_os(x,y)
                     for o in objs:
                         if not o.is_hidden(self,p):
-                            screen.blit(o.get_img(self),(x*64+ir(o.xoff)-asx+rx,y*64+ir(o.yoff)-asy-o.o3d*4+ry))
-            pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
+                            screen.blit(o.get_img(self)[self.wscale],(x*awscale+ir(o.xoff)*wconvmult-asx+rx,y*awscale+ir(o.yoff)*wconvmult-asy-o.o3d*(self.wscale+1)+ry))
+            pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,sw,aiscale))
             for n,i in enumerate(p.iinv.inv if p.iinv else p.inv):
-                screen.blit(i.get_img(p,self),(n*64,0))
+                screen.blit(i.get_img(p,self)[self.invscale],(n*aiscale,0))
                 if i.stack>1:
-                    screen.blit(numerals[i.stack-2],(n*64+(44 if i.stack<10 else 36),36))
+                    screen.blit(numerals[i.stack-2][self.invscale],(n*aiscale+(11 if i.stack<10 else 9)*(self.invscale+1),36))
                 if n==p.isel:
-                    pygame.draw.rect(screen,p.col,pygame.Rect(n*64,60,64,4))
+                    pygame.draw.rect(screen,p.col,pygame.Rect(n*aiscale,15*riscale,aiscale,riscale))
             if p.statuseffects:
                 maxt=max([se[1] for se in p.statuseffects])
                 maxse=[se for se in p.statuseffects if se[1]==maxt][0]
-                pygame.draw.rect(screen,p.col,pygame.Rect(0,507,maxt*448//Players.etimes[maxse[0]],12))
+                pygame.draw.rect(screen,p.col,pygame.Rect(0,sh-9,maxt*sw//Players.etimes[maxse[0]],12))
         elif p.shop:
             screen.fill((150,150,150))
-            pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,448,64))
+            pygame.draw.rect(screen,(200,200,200),pygame.Rect(0,0,sw,64))
             Img.bcentrex(bcfont,p.shop.title,screen,-16)
             for n,i in enumerate(p.shop.items):
-                Img.cxblit(i[0].img,screen,n*64+64,-32)
-                Img.bcentrex(cashfont,str(i[1]),screen,n*64+64,(255,255,0),32)
-            screen.blit(p.simg,(0,p.ssel*64+64))
+                Img.cxblit(i[0].img[self.invscale],screen,n*aiscale+aiscale,-8*riscale)
+                Img.bcentrex(cashfont,str(i[1]),screen,n*aiscale+aiscale,(255,255,0),8*riscale)
+            screen.blit(p.simg[self.invscale],(0,p.ssel*aiscale+aiscale))
         else:
             p.dead.render(screen)
-        Img.bcentrex(cashfont,str(p.cash),screen,468,(255,255,0))
-        pygame.draw.rect(screen,p.col,pygame.Rect(0,0,448,516),2)
-    def large_render(self,p,screen):
-        m=9
-        if not (p.shop or (p.dead and not p.dt)):
-            asx = p.x * 64 + ir(p.xoff) - 432
-            asy = p.y * 64 + ir(p.yoff) - 512
-            r = (p.rumbling - 1) // 10 + 1
-            rx = randint(-r, r)
-            ry = randint(-r, r)
-            sx = p.x
-            sy = p.y
-            for y in range(sy - m, sy + m + 2):
-                for x in range(sx - m, sx + m + 1):
-                    screen.blit(Tiles.tiles[self.get_t(x, y)].get_img(), (x * 64 - asx + rx, y * 64 - asy + ry))
-            for y in range(sy - m, sy + m + 2):
-                for x in range(sx - m, sx + m + 1):
-                    objs = self.get_os(x, y)
-                    for o in objs:
-                        if not o.is_hidden(self, p):
-                            screen.blit(o.get_img(self),
-                                        (x * 64 + ir(o.xoff) - asx + rx, y * 64 + ir(o.yoff) - asy - o.o3d * 4 + ry))
-            pygame.draw.rect(screen, (200, 200, 200), pygame.Rect(224, 0, 448, 64))
-            for n, i in enumerate(p.iinv.inv if p.iinv else p.inv):
-                screen.blit(i.get_img(p, self), (n * 64+224, 0))
-                if i.stack > 1:
-                    screen.blit(numerals[i.stack - 2], (n * 64 + (44 if i.stack < 10 else 36)+224, 36))
-                if n == p.isel:
-                    pygame.draw.rect(screen, p.col, pygame.Rect(n * 64+224, 60, 64, 4))
-            if p.statuseffects:
-                maxt = max([se[1] for se in p.statuseffects])
-                maxse = [se for se in p.statuseffects if se[1] == maxt][0]
-                pygame.draw.rect(screen, p.col, pygame.Rect(0, 507, maxt * 448 // Players.etimes[maxse[0]], 12))
-        elif p.shop:
-            screen.fill((150, 150, 150))
-            pygame.draw.rect(screen, (200, 200, 200), pygame.Rect(0, 0, 896, 64))
-            Img.bcentrex(bcfont, p.shop.title, screen, -16)
-            for n, i in enumerate(p.shop.items):
-                Img.cxblit(i[0].img, screen, n * 64 + 64, -32)
-                Img.bcentrex(cashfont, str(i[1]), screen, n * 64 + 64, (255, 255, 0), 32)
-            screen.blit(p.simg, (0, p.ssel * 64 + 64))
-        else:
-            p.dead.render(screen)
-        Img.bcentrex(cashfont, str(p.cash), screen, 964, (255, 255, 0))
-        pygame.draw.rect(screen, p.col, pygame.Rect(0, 0, 896, 1032), 2)
+        Img.bcentrex(cashfont,str(p.cash),screen,sh-48,(255,255,0))
+        pygame.draw.rect(screen,p.col,pygame.Rect(0,0,sw,sh),2)
     def get_t(self,x,y):
         sx=x//16
         sy=y//16
@@ -215,11 +186,14 @@ class Sector(object):
         self.build()
     def build(self):
         for x,y in self.iterlocs():
-            biome=Biomes.convert(bnoise.noise2(x/bscale,y/bscale))
+            biome=Biomes.convert(bnoise.noise2(x/bscale,y/bscale),bnoise2.noise2(x/b2scale,y/b2scale))
             self.change_t(x,y,biome.floor)
             noise=tnoise.noise2(x/16.0, y/16.0)+1
             if not randint(0,600):
-                self.spawn(Objects.UpgradePoint(x,y))
+                if randint(0,2):
+                    self.spawn(Objects.UpgradePoint(x,y))
+                else:
+                    self.spawn(Objects.DodgyShop(x, y))
             elif noise<threshold:
                 biome.GenerateWall(x,y,self)
             else:
@@ -242,6 +216,8 @@ class Sector(object):
                 self.uos.append(o)
         else:
             self.w.spawn(o)
+    def reg_updates(self,o):
+        self.uos.append(o)
     def spawnX(self,o):
         self.o[o.x][o.y].append(o)
         o.place(o.x+self.x*16,o.y+self.y*16)
@@ -277,7 +253,10 @@ class Sector(object):
     def dest(self,o):
         x,y=self.d_pos(o.x,o.y)
         if self.in_sector(o.x,o.y):
-            self.o[x][y].remove(o)
+            try:
+                self.o[x][y].remove(o)
+            except ValueError:
+                print "WARNING: object %s not in sector" % o
             if o in self.uos:
                 self.uos.remove(o)
         else:
@@ -333,6 +312,11 @@ class Sector(object):
             for x in range(fx-r,fx+r+1):
                 for y in range(fy-r,fy+r+1):
                     self.explode(x,y)
+        elif exps=="Circle":
+            for x in range(fx-r,fx+r+1):
+                for y in range(fy-r,fy+r+1):
+                    if (x-fx)**2+(y-fy)**2<(r+0.5)**2:
+                        self.explode(x,y)
         for p,d in self.iter_players(fx,fy):
             if d<r*3:
                 p.rumbling=(r*3-d)*10
@@ -375,7 +359,7 @@ class HomeSector(Sector):
         self.spawnX(self.sp(7,7,self,*self.spa))
         for x,y in self.iterlocs():
             if (x in [0,15] or y in [0,15]) and randint(0,1):
-                biome=Biomes.convert(bnoise.noise2(x/bscale,y/bscale))
+                biome=Biomes.convert(bnoise.noise2(x/bscale,y/bscale),bnoise2.noise2(x/b2scale,y/b2scale))
                 self.change_t(x,y,biome.floor)
                 noise=tnoise.noise2(x/16.0, y/16.0)+1
                 if noise<threshold:
@@ -400,7 +384,7 @@ class Glade(Sector):
         self.r=randint(4,8)
         for x,y in self.iterlocs():
             ax,ay=self.d_pos(x,y)
-            biome=Biomes.convert(bnoise.noise2(x/bscale,y/bscale))
+            biome=Biomes.convert(bnoise.noise2(x/bscale,y/bscale),bnoise2.noise2(x/b2scale,y/b2scale))
             dx=abs(ax-7.5)
             dy=abs(ay-7.5)
             if (dx**2+dy**2)**0.5<self.r:

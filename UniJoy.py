@@ -34,6 +34,8 @@ class Unijoy:
         s = 2 * stick - 2
         if stick == 2 and self.type == "XBOX":
             return self.j.get_axis(4), self.j.get_axis(3)
+        elif stick==2 and self.type=="PS2":
+            return self.j.get_axis(3), self.j.get_axis(2)
         else:
             return self.j.get_axis(s), self.j.get_axis(s + 1)
 

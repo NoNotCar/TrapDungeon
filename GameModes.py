@@ -73,6 +73,10 @@ class GameMode(object):
         return None
 class Standard(GameMode):
     name="Standard"
+    def __init__(self,t=False):
+        if t:
+            self.teams = t
+            self.name+="Team"
     def create_inv(self):
         return [Items.Pickaxe(),Items.StackPlacer(Objects.Bomb,3),Items.StackPlacer(Objects.Mine)]
 class Duo(Standard):
@@ -92,4 +96,4 @@ class CTF(Standard):
     world=CTFWorld
     timereverse = True
     teams=True
-gamemodes=[Standard(),Duo(),BoxHunt(),CTF()]
+gamemodes=[Standard(),Standard(True),Duo(),BoxHunt(),CTF()]

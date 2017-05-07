@@ -1,5 +1,5 @@
-from Img import blank64
 import pygame
+from Img import blank
 class Object(object):
     img=None
     speed=4
@@ -77,7 +77,7 @@ class Object(object):
     def emp(self,world):
         pass
 class MultiPart(Object):
-    img=blank64
+    img=blank
     def __init__(self,x,y,p):
         self.p=p
         self.solid=p.solid

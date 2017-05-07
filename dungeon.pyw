@@ -12,9 +12,9 @@ pdf = pygame.font.get_default_font()
 tfont=Img.fload("cool",64)
 sfont=Img.fload("cool",32)
 clock = pygame.time.Clock()
-tickimg=Img.img4("Tick")
-crossimg=Img.img4("Null")
-tselimgs=Img.imgstrip4f("TSelect",64)
+tickimg=Img.imgx("Tick")
+crossimg=Img.imgx("Null")
+tselimgs=Img.imgstripxf("TSelect",64)
 tsel=0
 cols=((255,0,0),(0,255,0),(0,0,255),(255,255,0),(255,0,255),(0,255,255),(255,128,0),(255,128,255))
 teamcols=((255,0,0),(0,0,255),(255,125,0),(0,125,255),(255,125,125),(125,125,255),(125,0,0),(0,0,125))
@@ -86,7 +86,7 @@ while not breaking:
     brects=[]
     Img.bcentre(tfont,"TRAP DUNGEON",screen,-100)
     Img.bcentrex(sfont,"TIME:",screen,700)
-    Img.cxblit(tselimgs[tsel],screen,750)
+    Img.cxblit(tselimgs[tsel][3],screen,750)
     for n,b in enumerate([cgamemode,gamemodes,tutbutton]):
         brects.append(Img.cxblit(b,screen,500+n*64))
     pygame.display.flip()
@@ -127,12 +127,12 @@ while not breaking:
                 acps[n]=(acps[n]+1)%len(pimgs)
             elif (-1,0) == cdir:
                 acps[n]=(acps[n]-1)%len(pimgs)
-            Img.cxblit(pimgs[acps[n]],screen,n*64+94)
+            Img.cxblit(pimgs[acps[n]][3],screen,n*64+94)
             if acps[n] in rsps:
-                Img.cxblit(crossimg,screen,n*64+94,64)
+                Img.cxblit(crossimg[3],screen,n*64+94,64)
         else:
-            Img.cxblit(pimgs[acps[n]],screen,n*64+94)
-            Img.cxblit(tickimg,screen,n*64+94,64)
+            Img.cxblit(pimgs[acps[n]][3],screen,n*64+94)
+            Img.cxblit(tickimg[3],screen,n*64+94,64)
     if len(rsps)<gm.maxp:
         Img.bcentrex(sfont,"Press <use> to join",screen,n*64+160,(255,255,255))
     else:
@@ -168,10 +168,7 @@ while True:
         supersurf.fill((0,0,0))
         w.update(es)
         for n,p in enumerate(players):
-            if gm.largescreen:
-                w.large_render(p,subsurfs[n])
-            else:
-                w.render(p,subsurfs[n])
+            w.render(p,subsurfs[n])
         if time<0 and not gm.timereverse:
             break
         else:
@@ -199,4 +196,6 @@ while True:
             Img.bcentre(tfont,"WIN" if p.cash==winscore else "LOSE",subsurfs[n],col=p.col)
         pygame.display.flip()
         pygame.time.wait(2500)
+    if gm.teams:
+        Players.teammoney=[0,0]
 

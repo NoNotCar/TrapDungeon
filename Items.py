@@ -1,9 +1,9 @@
-from Img import img4, sndget, imgstrip4, rot_center, colcopy
+from Img import imgx, sndget, imgstripx, rot_center, colcopy
 import Direction as D
 import math
 pickup=sndget("pickup")
 defuse=sndget("EMP")
-stackplacers=["Bomb","Dynamite","Missile","Mine"]
+stackplacers=["Bomb","Dynamite","Missile","Mine","BarbedWire","NMissile"]
 sixtyfourth=1.0/64
 class Item(object):
     img=None
@@ -39,8 +39,8 @@ class StackPlacer(StackItem):
             world.spawn(self.c(tx,ty,p))
             return True
 class Pickaxe(Item):
-    img=img4("BasicPick")
-    gimg=img4("GoldenPick")
+    img=imgx("BasicPick")
+    gimg=imgx("GoldenPick")
     name="Pickaxe"
     continuous = True
     golden=False
@@ -50,7 +50,7 @@ class Pickaxe(Item):
     def get_img(self,p,world):
         return self.gimg if self.golden else self.img
 class Defuser(Item):
-    imgs=imgstrip4("Defuser")
+    imgs=imgstripx("Defuser")
     cooldown=0
     img=imgs[0]
     def get_img(self,p,world):
@@ -89,48 +89,60 @@ class Trap(Item):
             p.remove_item(self)
             pickup.play()
 class Compass(Item):
-    bimg=img4("CompassBase")
-    nimg=img4("Needle")
+    bimg=imgx("CompassBase")
+    nimg=imgx("Needle")
     img=bimg.copy()
     img.blit(nimg,(0,0))
+    imgs={}
     name="Compass"
+    tpos=(7,7)
     def get_img(self,p,world):
-        img=self.bimg.copy()
-        dx=p.x+p.xoff*sixtyfourth-7
-        dy=7-p.y-p.yoff*sixtyfourth
-        ang=math.degrees(math.atan2(dy,dx))+90
-        img.blit(rot_center(self.nimg,ang),(0,0))
-        return img
+        dx=p.x+p.xoff*sixtyfourth-self.tpos[0]
+        dy=self.tpos[1]-p.y-p.yoff*sixtyfourth
+        ang=int(round((math.degrees(math.atan2(dy,dx))+90)/30)*30)
+        if ang not in self.imgs.keys():
+            img=self.bimg.copy()
+            img.blit(rot_center(self.nimg,ang),(0,0))
+            self.imgs[ang]=img
+        return self.imgs[ang]
+class RedCompass(Compass):
+    tpos=(-41,7)
+class BlueCompass(Compass):
+    tpos=(55,7)
 class BHCompass(Item):
-    bimg = img4("CompassBase")
-    nimg = img4("BHNeedle")
+    bimg = imgx("CompassBase")
+    nimg = imgx("BHNeedle")
     img = bimg.copy()
     img.blit(nimg, (0, 0))
+    imgs={}
     name = "Compass"
     def get_img(self,p,world):
-        img = self.bimg.copy()
         bx,by=world.get_nearest_box(p.x,p.y)
         dx=p.x+p.xoff*sixtyfourth-bx
         dy=by-p.y-p.yoff*sixtyfourth
-        ang=math.degrees(math.atan2(dy,dx))+90
-        img.blit(rot_center(self.nimg,ang),(0,0))
-        return img
-class FFToken(StackItem):
-    img=img4("FFToken")
-    name = "FFToken"
+        ang = int(round((math.degrees(math.atan2(dy, dx)) + 90) / 30) * 30)
+        if ang not in self.imgs.keys():
+            img = self.bimg.copy()
+            img.blit(rot_center(self.nimg, ang), (0, 0))
+            self.imgs[ang] = img
+        return self.imgs[ang]
+class Pill(StackItem):
+    img=imgx("Pill")
+    name = "Pill"
+    snd=sndget("drug")
     def stuse(self,tars,world,tx,ty,p):
         p.add_effect("Fast")
-        defuse.play()
+        self.snd.play()
         return True
 class BridgeBuilder(StackItem):
-    img=img4("BridgeItem")
+    img=imgx("BridgeItem")
     name="Bridge"
     def stuse(self,tars,world,tx,ty,p):
         if not tars and not world.get_tclass(tx,ty).passable:
             world.change_t(tx,ty,5)
             return True
 class GigaDrill(Item):
-    img=img4("GigaDrill")
+    img=imgx("GigaDrill")
     continuous = True
     def use(self,tars,world,tx,ty,p):
         dx,dy=D.get_dir(p.d)
@@ -146,14 +158,14 @@ class GigaDrill(Item):
             if stop:
                 break
 class Shield(Item):
-    img=img4("Shield")
+    img=imgx("Shield")
     name="Shield"
 class BOLReturn(Item):
-    img=img4("BOHOut")
+    img=imgx("BOHOut")
     def use(self,tars,world,tx,ty,p):
         p.iinv=None
 class BagOfLoot(Item):
-    img=img4("BOH")
+    img=imgx("BOH")
     name = "BagLoot"
     def __init__(self):
         self.inv=[BOLReturn()]
@@ -161,7 +173,7 @@ class BagOfLoot(Item):
         if item.value:
             return True
 class Flag(Item):
-    img=img4("Flag")
+    img=imgx("Flag")
     name="Flag"
     def __init__(self,col,home):
         self.img=colcopy(self.img,(128,128,128),col)
