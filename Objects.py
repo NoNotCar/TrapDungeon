@@ -168,7 +168,7 @@ class Missile(Object):
     denemy = True
     img=imgx("Missile")
     fimgs=imgrot(imgx("MissileIF"))
-    orect = Rect(24,12,16,44)
+    orect = Rect(24,24,16,16)
     speed = 1
     aspeed=1
     name="Missile"
